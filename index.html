@@ -1,23 +1,67 @@
+
 <!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Ludo - शिव शक्ति स्टोर</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Ludo - The Royal Challenge</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="game-container">
-        <h1>🎲 शिव शक्ति लूडो</h1>
-        <div id="status">लाल की बारी है...</div>
-        <div id="board">
-            <p>बोर्ड यहाँ लोड होगा...</p>
-        </div>
-        <div id="controls">
-            <button onclick="rollDice()">पासा फेंको</button>
-            <span id="dice-value">?</span>
+
+    <div id="splash-screen">
+        <div class="splash-content">
+            <h1 class="logo-text">MY LUDO</h1>
+            <div class="loader-bar"><div class="progress"></div></div>
+            <p>प्रवेश कर रहे हैं शाही दरबार में...</p>
         </div>
     </div>
+
+    <div id="game-wrapper">
+        
+        <header class="game-header">
+            <div class="player-profile ai-player" id="p2-meta">
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Robot1" alt="AI">
+                <div class="stats"><span>कम्प्यूटर</span><small>⚔️ 0</small></div>
+            </div>
+            <h1 class="main-title">MY LUDO</h1>
+            <div class="player-profile ai-player" id="p3-meta">
+                <div class="stats"><span>कम्प्यूटर</span><small>⚔️ 0</small></div>
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Robot2" alt="AI">
+            </div>
+        </header>
+
+        <main class="board-container">
+            <div id="ludo-board" class="royal-board">
+                </div>
+        </main>
+
+        <footer class="game-footer">
+            <div class="player-profile human-player active-turn" id="p1-meta">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Ganesh" alt="Player">
+                <div class="stats"><span>खिलाड़ी (आप)</span><small>⚔️ 0</small></div>
+            </div>
+
+            <div class="dice-area">
+                <div id="dice-wrapper" onclick="rollDice()">
+                    <div id="dice-cube" class="dice-pro">🎲</div>
+                </div>
+                <p id="instruction-text">पासा फेंकें</p>
+            </div>
+
+            <div class="player-profile ai-player" id="p4-meta">
+                <div class="stats"><span>कम्प्यूटर</span><small>⚔️ 0</small></div>
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Robot3" alt="AI">
+            </div>
+        </footer>
+    </div>
+
+    <audio id="dice-sound" src="https://www.soundjay.com/board-games/sounds/dice-roll-1.mp3"></audio>
+    <audio id="kill-sound" src="https://www.soundjay.com/misc/sounds/sword-clash-1.mp3"></audio>
+
     <script src="script.js"></script>
 </body>
 </html>
