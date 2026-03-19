@@ -1,67 +1,96 @@
-
 <!DOCTYPE html>
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Ludo - The Royal Challenge</title>
+    <title>My Ludo - Royal Premium v2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
     
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&family=Rajdhani:wght@700&display=swap" rel="stylesheet">
-    
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* --- प्रीमियम रॉयल डिजाइन (CSS) --- */
+        :root {
+            --bg: radial-gradient(circle, #1e293b, #0f172a);
+            --gold: linear-gradient(145deg, #f59e0b, #d97706);
+            --red: #ef4444; --green: #22c55e; --blue: #3b82f6; --yellow: #facc15;
+        }
+
+        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; margin: 0; overflow: hidden; height: 100vh; display: flex; justify-content: center; align-items: center; }
+
+        #splash-screen { position: fixed; inset: 0; background: #0f172a; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: 0.8s; }
+        .logo { font-size: 3rem; color: #fbbf24; text-shadow: 0 0 20px rgba(251,191,36,0.6); font-family: 'Rajdhani'; }
+
+        #game-wrapper { width: 100%; max-width: 400px; text-align: center; display: none; } /* शुरू में छुपा रहेगा */
+
+        .board { 
+            display: grid; grid-template-columns: repeat(15, 1fr); 
+            width: 95vw; height: 95vw; max-width: 380px; max-height: 380px; 
+            background: white; margin: 20px auto; border: 6px solid #c5a059; border-radius: 10px; box-shadow: 0 0 40px rgba(0,0,0,0.8);
+        }
+
+        .cell { border: 0.1px solid rgba(0,0,0,0.05); position: relative; }
+        .red { background: var(--red); } .green { background: var(--green); } 
+        .blue { background: var(--blue); } .yellow { background: var(--yellow); }
+
+        #dice-btn { 
+            width: 80px; height: 80px; background: white; margin: 20px auto; border-radius: 15px; 
+            display: flex; align-items: center; justify-content: center; font-size: 45px; color: #1e293b;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5); cursor: pointer; active: transform: scale(0.9);
+        }
+
+        /* गोटियाँ */
+        .token { width: 80%; height: 80%; border-radius: 50%; border: 2px solid white; margin: 10%; box-shadow: 0 4px 8px rgba(0,0,0,0.4); }
+    </style>
 </head>
 <body>
 
     <div id="splash-screen">
-        <div class="splash-content">
-            <h1 class="logo-text">MY LUDO</h1>
-            <div class="loader-bar"><div class="progress"></div></div>
-            <p>प्रवेश कर रहे हैं शाही दरबार में...</p>
-        </div>
+        <h1 class="logo">MY LUDO</h1>
+        <p>शाही दरबार सज रहा है...</p>
     </div>
 
     <div id="game-wrapper">
-        
-        <header class="game-header">
-            <div class="player-profile ai-player" id="p2-meta">
-                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Robot1" alt="AI">
-                <div class="stats"><span>कम्प्यूटर</span><small>⚔️ 0</small></div>
-            </div>
-            <h1 class="main-title">MY LUDO</h1>
-            <div class="player-profile ai-player" id="p3-meta">
-                <div class="stats"><span>कम्प्यूटर</span><small>⚔️ 0</small></div>
-                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Robot2" alt="AI">
-            </div>
-        </header>
-
-        <main class="board-container">
-            <div id="ludo-board" class="royal-board">
-                </div>
-        </main>
-
-        <footer class="game-footer">
-            <div class="player-profile human-player active-turn" id="p1-meta">
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Ganesh" alt="Player">
-                <div class="stats"><span>खिलाड़ी (आप)</span><small>⚔️ 0</small></div>
-            </div>
-
-            <div class="dice-area">
-                <div id="dice-wrapper" onclick="rollDice()">
-                    <div id="dice-cube" class="dice-pro">🎲</div>
-                </div>
-                <p id="instruction-text">पासा फेंकें</p>
-            </div>
-
-            <div class="player-profile ai-player" id="p4-meta">
-                <div class="stats"><span>कम्प्यूटर</span><small>⚔️ 0</small></div>
-                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Robot3" alt="AI">
-            </div>
-        </footer>
+        <h1 style="color:#fbbf24">👑 MY LUDO 👑</h1>
+        <div id="board" class="board"></div>
+        <div id="dice-btn" onclick="roll()">🎲</div>
+        <p id="msg">पासा फेंकें</p>
     </div>
 
-    <audio id="dice-sound" src="https://www.soundjay.com/board-games/sounds/dice-roll-1.mp3"></audio>
-    <audio id="kill-sound" src="https://www.soundjay.com/misc/sounds/sword-clash-1.mp3"></audio>
+    <script>
+        // --- चाणक्य इंजन (JavaScript) ---
+        function init() {
+            const board = document.getElementById('board');
+            for (let i = 0; i < 225; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                let r = Math.floor(i/15), c = i%15;
 
-    <script src="script.js"></script>
+                if (r<6 && c<6) cell.classList.add('red');
+                if (r<6 && c>8) cell.classList.add('green');
+                if (r>8 && c<6) cell.classList.add('blue');
+                if (r>8 && c>8) cell.classList.add('yellow');
+
+                board.appendChild(cell);
+            }
+
+            // ३ सेकंड बाद पर्दा हटाओ
+            setTimeout(() => {
+                document.getElementById('splash-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('splash-screen').style.display = 'none';
+                    document.getElementById('game-wrapper').style.display = 'block';
+                }, 800);
+            }, 3000);
+        }
+
+        function roll() {
+            const v = Math.floor(Math.random()*6)+1;
+            const icons = ["","⚀","⚁","⚂","⚃","⚄","⚅"];
+            document.getElementById('dice-btn').innerHTML = icons[v];
+            document.getElementById('msg').innerHTML = "नंबर आया: " + v;
+            if(navigator.vibrate) navigator.vibrate(50);
+        }
+
+        window.onload = init;
+    </script>
 </body>
 </html>
