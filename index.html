@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Ludo - Ultimate Precision</title>
+    <title>My Ludo - Royal Perfection v9</title>
     <style>
         :root {
             --red: #ef4444; --green: #22c55e; --blue: #3b82f6; --yellow: #facc15;
@@ -11,49 +11,59 @@
         }
         body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
 
-        /* 15x15 का सटीक ग्रिड */
+        /* 15x15 का सख्त गणितीय ग्रिड */
         .ludo-board {
-            display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr);
+            display: grid; 
+            grid-template-columns: repeat(15, 1fr); 
+            grid-template-rows: repeat(15, 1fr);
             width: 95vw; height: 95vw; max-width: 420px; max-height: 420px;
-            background: #fff; border: 10px solid #c5a059; border-radius: 15px; box-shadow: 0 0 50px #000;
-            position: relative;
+            background: #fff; border: 12px solid #c5a059; border-radius: 12px;
+            box-shadow: 0 0 60px #000; position: relative;
         }
 
-        .cell { border: 0.1px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; position: relative; }
+        .cell { border: 0.1px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; }
 
-        /* बड़े घर (6x6 Blocks) */
-        .home { grid-column: span 6; grid-row: span 6; border: 2px solid #000; padding: 15%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .red-home { background: var(--red); grid-area: 1 / 1 / 7 / 7; }
-        .green-home { background: var(--green); grid-area: 1 / 10 / 7 / 16; }
-        .blue-home { background: var(--blue); grid-area: 10 / 1 / 16 / 7; }
-        .yellow-home { background: var(--yellow); grid-area: 10 / 10 / 16 / 16; }
+        /* 1. कोनों के शाही घर (6x6 Blocks) - 'Hard Positioned' */
+        .home { grid-column: span 6; grid-row: span 6; border: 2px solid #000; z-index: 10; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-around; padding: 10%; }
+        .red-home { grid-area: 1 / 1 / 7 / 7; background: var(--red); }
+        .green-home { grid-area: 1 / 10 / 7 / 16; background: var(--green); }
+        .blue-home { grid-area: 10 / 1 / 16 / 7; background: var(--blue); }
+        .yellow-home { grid-area: 10 / 10 / 16 / 16; background: var(--yellow); }
         
-        .slot { background: #fff; border-radius: 50%; box-shadow: inset 0 0 10px rgba(0,0,0,0.3); }
+        .slot { width: 35%; height: 35%; background: rgba(255,255,255,0.4); border-radius: 50%; border: 3px solid #fff; box-shadow: inset 0 0 15px rgba(0,0,0,0.3); }
 
-        /* केंद्र का शाही त्रिभुज (Mathematically Correct Triangles) */
-        .center-triangle {
+        /* 2. केंद्र का संगम (The Center Finish Triangles) - गणितीय रूप से सटीक */
+        .center-home {
             grid-area: 7 / 7 / 10 / 10;
-            background: conic-gradient(from 45deg, var(--yellow) 0deg 90deg, var(--blue) 90deg 180deg, var(--red) 180deg 270deg, var(--green) 270deg 360deg);
-            border: 2px solid #000; z-index: 5;
+            position: relative; border: 2px solid #000; z-index: 20; background: #fff;
         }
+        .triangle {
+            position: absolute; width: 0; height: 0;
+            border-style: solid;
+        }
+        /* ४ सटीक त्रिभुज जो बीच में मिलते हैं */
+        .t-top { border-width: 60px 60px 0 60px; border-color: var(--green) transparent transparent transparent; top:0; left:0; }
+        .t-right { border-width: 60px 0 60px 60px; border-color: transparent transparent transparent var(--yellow); top:0; right:0; }
+        .t-bottom { border-width: 0 60px 60px 60px; border-color: transparent transparent var(--blue) transparent; bottom:0; left:0; }
+        .t-left { border-width: 60px 60px 60px 0; border-color: transparent var(--red) transparent transparent; top:0; left:0; }
 
         /* रास्तों के सटीक रंग */
         .p-red { background: var(--red); } .p-green { background: var(--green); }
         .p-blue { background: var(--blue); } .p-yellow { background: var(--yellow); }
 
-        /* सितारों का वैज्ञानिक स्थान (Stars) */
-        .star-cell { background: #cbd5e1; font-size: 14px; font-weight: bold; color: #1e293b; }
+        /* सितारों का 'वैज्ञानिक' स्थान (Standard Ludo Stars) */
+        .star { background: #cbd5e1; font-weight: bold; color: #1e293b; font-size: 16px; }
 
         #dice-btn { 
-            width: 80px; height: 80px; background: white; border-radius: 18px; margin-top: 20px;
-            display: flex; align-items: center; justify-content: center; font-size: 45px; color: #1e293b;
-            box-shadow: 0 8px 0 #94a3b8, 0 15px 25px rgba(0,0,0,0.5); cursor: pointer;
+            width: 85px; height: 85px; background: white; border-radius: 20px; margin-top: 25px;
+            display: flex; align-items: center; justify-content: center; font-size: 50px; color: #1e293b;
+            box-shadow: 0 10px 0 #94a3b8, 0 20px 30px rgba(0,0,0,0.6); cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <h1 style="color:var(--gold); margin-bottom: 15px; font-family: 'Poppins';">👑 MY LUDO 👑</h1>
+    <h1 style="color:var(--gold); text-shadow: 2px 2px 10px #000; margin-bottom: 10px;">👑 MY LUDO v9 👑</h1>
     
     <div class="ludo-board" id="board">
         <div class="home red-home"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
@@ -61,42 +71,45 @@
         <div class="home blue-home"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
         <div class="home yellow-home"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
         
-        <div class="center-triangle"></div>
+        <div class="center-home">
+            <div class="triangle t-top"></div>
+            <div class="triangle t-right"></div>
+            <div class="triangle t-bottom"></div>
+            <div class="triangle t-left"></div>
+        </div>
     </div>
     
     <div id="dice-btn" onclick="roll()">🎲</div>
-    <p id="msg" style="margin-top:15px; font-weight:bold; color:var(--gold); font-size: 18px;">शाही चाल के लिए पासा फेंकें</p>
+    <p id="msg" style="margin-top:15px; font-weight:bold; color:var(--gold); font-size: 20px;">पासा फेंकें</p>
 
     <script>
-        function buildBoard() {
+        function renderBoard() {
             const b = document.getElementById('board');
             for(let i=0; i<225; i++) {
                 let r=Math.floor(i/15)+1, c=(i%15)+1;
-                // केवल उन सेल्स को बनाएं जो घर या सेंटर के बाहर हैं
+                // घर और केंद्र को छोड़कर बाकी सेल्स बनाएँ
                 if(!((r<=6 && c<=6) || (r<=6 && c>=10) || (r>=10 && c<=6) || (r>=10 && c>=10) || (r>=7 && r<=9 && c>=7 && c<=9))) {
                     const cell = document.createElement('div');
                     cell.className = 'cell';
                     cell.style.gridArea = `${r} / ${c}`;
 
-                    // --- गणितीय रास्ता (Mathematical Path) ---
-                    // रेड होम स्ट्रेच
-                    if (r === 8 && c >= 2 && c <= 6) cell.classList.add('p-red');
-                    // ग्रीन होम स्ट्रेच
-                    if (c === 8 && r >= 2 && r <= 6) cell.classList.add('p-green');
-                    // ब्लू होम स्ट्रेच
-                    if (r === 8 && c >= 10 && c <= 14) cell.classList.add('p-yellow');
-                    // येलो होम स्ट्रेच
-                    if (c === 8 && r >= 10 && r <= 14) cell.classList.add('p-blue');
+                    // --- सटीक शाही रास्ते ---
+                    if (r === 8 && c >= 2 && c <= 6) cell.classList.add('p-red'); // लाल रास्ता
+                    if (c === 8 && r >= 2 && r <= 6) cell.classList.add('p-green'); // हरा रास्ता
+                    if (r === 8 && c >= 10 && c <= 14) cell.classList.add('p-yellow'); // पीला रास्ता
+                    if (c === 8 && r >= 10 && r <= 14) cell.classList.add('p-blue'); // नीला रास्ता
 
-                    // --- सितारों का वैज्ञानिक स्थान (Safe Spots) ---
+                    // --- सितारों का सटीक गणितीय स्थान ---
                     const stars = [
-                        {r:7, c:2}, {r:2, c:9}, {r:9, c:14}, {r:14, c:7}, // शुरुआती बिंदु
-                        {r:9, c:2}, {r:2, c:7}, {r:7, c:14}, {r:14, c:9}  // सुरक्षा कवच
+                        {r:7, c:2}, {r:9, c:3},   // Red Area Stars
+                        {r:2, c:9}, {r:3, c:7},   // Green Area Stars
+                        {r:9, c:14}, {r:7, c:13}, // Yellow Area Stars
+                        {r:14, c:7}, {r:13, c:9}  // Blue Area Stars
                     ];
                     
                     if (stars.some(s => s.r === r && s.c === c)) {
                         cell.innerHTML = "⭐";
-                        cell.classList.add('star-cell');
+                        cell.classList.add('star');
                     }
                     
                     b.appendChild(cell);
@@ -107,13 +120,13 @@
         function roll() {
             const v = Math.floor(Math.random()*6)+1;
             const icons = ["","⚀","⚁","⚂","⚃","⚄","⚅"];
-            const btn = document.getElementById('dice-btn');
-            btn.innerHTML = icons[v];
+            document.getElementById('dice-btn').innerHTML = icons[v];
             document.getElementById('msg').innerHTML = "नंबर आया: " + v;
-            if(navigator.vibrate) navigator.vibrate(50);
+            if(navigator.vibrate) navigator.vibrate(60);
         }
 
-        window.onload = buildBoard;
+        window.onload = renderBoard;
     </script>
 </body>
-</html>
+    </html>
+        
