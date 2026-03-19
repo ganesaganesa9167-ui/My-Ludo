@@ -3,125 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Ludo - Royal Engine v4</title>
+    <title>My Ludo - Royal Architect v6</title>
     <style>
         :root {
             --bg: #0f172a; --gold: #fbbf24;
             --red: #ef4444; --green: #22c55e; --blue: #3b82f6; --yellow: #facc15;
         }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; justify-content: center; }
         
-        /* प्रीमियम बोर्ड */
+        /* असली 15x15 बोर्ड डिजाइन */
         .board { 
             display: grid; grid-template-columns: repeat(15, 1fr); 
-            width: 92vw; height: 92vw; max-width: 380px; max-height: 380px; 
-            background: white; margin: 10px auto; border: 6px solid #c5a059; border-radius: 12px; 
-            box-shadow: 0 0 40px rgba(0,0,0,0.8); position: relative;
+            width: 95vw; height: 95vw; max-width: 400px; max-height: 400px; 
+            background: #fff; border: 8px solid #c5a059; border-radius: 10px; box-shadow: 0 0 50px #000; position: relative;
         }
 
-        .cell { border: 0.1px solid rgba(0,0,0,0.05); position: relative; display: flex; align-items: center; justify-content: center; z-index: 1; }
+        .cell { border: 0.1px solid rgba(0,0,0,0.08); position: relative; display: flex; align-items: center; justify-content: center; }
         
-        /* कलर कोडिंग */
-        .red { background: var(--red); } .green { background: var(--green); } 
-        .blue { background: var(--blue); } .yellow { background: var(--yellow); }
-        .safe { background: #e2e8f0; } /* सुरक्षित स्थान */
+        /* केंद्र का शाही त्रिभुज (The Finish Area) */
+        .center-home {
+            grid-area: 7 / 7 / 10 / 10;
+            background: conic-gradient(var(--green) 0deg 90deg, var(--yellow) 90deg 180deg, var(--blue) 180deg 270deg, var(--red) 270deg 360deg);
+            z-index: 5; border: 2px solid #000;
+        }
 
-        /* गोटियाँ - एनिमेटेड और प्रीमियम */
+        /* होम एरिया और शाही रास्ते */
+        .home-red { grid-area: 1 / 1 / 7 / 7; background: var(--red); }
+        .home-green { grid-area: 1 / 10 / 7 / 16; background: var(--green); }
+        .home-blue { grid-area: 10 / 1 / 16 / 7; background: var(--blue); }
+        .home-yellow { grid-area: 10 / 10 / 16 / 16; background: var(--yellow); }
+
+        /* रास्तों के सटीक रंग (Correct Mapping) */
+        .path-red { background: var(--red); } .path-green { background: var(--green); }
+        .path-blue { background: var(--blue); } .path-yellow { background: var(--yellow); }
+        .safe-star { background: #e2e8f0; font-size: 10px; }
+
+        /* गोटियों का प्रीमियम लुक */
         .token { 
             width: 80%; height: 80%; border-radius: 50%; border: 2px solid white; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.6); cursor: pointer; z-index: 100;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: absolute;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 10;
         }
-        .token:hover { transform: scale(1.2); z-index: 101; }
-        .red-t { background: radial-gradient(circle at 30% 30%, #ff8888, var(--red)); }
-        .green-t { background: radial-gradient(circle at 30% 30%, #88ff88, var(--green)); }
+        .red-t { background: radial-gradient(circle at 30% 30%, #ffaaaa, var(--red)); }
+        .green-t { background: radial-gradient(circle at 30% 30%, #aaffaa, var(--green)); }
 
-        /* पासा (Dice) */
-        #dice-container { margin-top: 20px; text-align: center; }
         #dice-btn { 
-            width: 70px; height: 70px; background: white; border-radius: 12px; 
+            width: 70px; height: 70px; background: white; border-radius: 15px; margin-top: 20px;
             display: flex; align-items: center; justify-content: center; font-size: 40px; color: #1e293b;
-            box-shadow: 0 6px 0 #cbd5e1, 0 10px 20px rgba(0,0,0,0.5); cursor: pointer;
-            transition: 0.1s;
+            box-shadow: 0 8px 0 #cbd5e1, 0 15px 20px rgba(0,0,0,0.5); cursor: pointer;
         }
-        #dice-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #cbd5e1; }
     </style>
 </head>
 <body>
 
-    <h1 style="color:var(--gold); margin: 10px;">👑 MY LUDO 👑</h1>
-    <div id="board" class="board"></div>
-    
-    <div id="dice-container">
-        <div id="dice-btn" onclick="rollDice()">🎲</div>
-        <p id="status" style="margin-top:10px; font-weight:bold; color:var(--gold)">पासा फेंकें</p>
+    <h1 style="color:var(--gold); font-size: 1.5rem; margin-bottom: 5px;">👑 MY LUDO 👑</h1>
+    <div id="board" class="board">
+        <div class="home-red"></div>
+        <div class="home-green"></div>
+        <div class="home-blue"></div>
+        <div class="home-yellow"></div>
+        <div class="center-home"></div>
     </div>
+    
+    <div id="dice-btn" onclick="roll()">🎲</div>
+    <p id="msg" style="margin-top:10px; font-weight:bold; color:var(--gold)">पासा फेंकें</p>
 
     <script>
-        let diceVal = 0;
-        let canMove = false;
-
-        // 1. बोर्ड बनाना और गोटियों को ID देना
         function init() {
-            const board = document.getElementById('board');
-            board.innerHTML = '';
-            for (let i = 0; i < 225; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                cell.id = 'cell-' + i;
-                let r = Math.floor(i/15), c = i%15;
-
-                // घरों के रंग
-                if (r<6 && c<6) cell.classList.add('red');
-                if (r<6 && c>8) cell.classList.add('green');
-                if (r>8 && c<6) cell.classList.add('blue');
-                if (r>8 && c>8) cell.classList.add('yellow');
-
-                // गोटियाँ रखना (ID के साथ)
-                if (r===2 && c===2) addToken(cell, 'red', 1);
-                if (r===2 && c===3) addToken(cell, 'red', 2);
-                if (r===2 && c===11) addToken(cell, 'green', 1);
-
-                board.appendChild(cell);
+            const b = document.getElementById('board');
+            for(let i=0; i<225; i++) {
+                let r=Math.floor(i/15), c=i%15;
+                // अगर सेल होम एरिया के अंदर नहीं है और सेंटर में नहीं है, तो उसे बनाएं
+                if(!((r<6 && c<6) || (r<6 && c>8) || (r>8 && c<6) || (r>8 && c>8) || (r>=6 && r<=8 && c>=6 && c<=8))) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    
+                    // शाही रास्ते का सटीक नक्शा
+                    if (r === 7 && c >= 1 && c <= 5) cell.classList.add('path-red'); // लाल रास्ता
+                    if (c === 7 && r >= 1 && r <= 5) cell.classList.add('path-green'); // हरा रास्ता
+                    if (c === 7 && r >= 9 && r <= 13) cell.classList.add('path-blue'); // नीला रास्ता
+                    if (r === 7 && c >= 9 && c <= 13) cell.classList.add('path-yellow'); // पीला रास्ता
+                    
+                    // सुरक्षित स्थान (Safe Spots)
+                    if ((r===6 && c===1) || (r===1 && c===8) || (r===8 && c===13) || (r===13 && c===6)) cell.innerHTML = "⭐";
+                    
+                    b.appendChild(cell);
+                }
             }
         }
 
-        function addToken(parent, color, id) {
-            const t = document.createElement('div');
-            t.className = `token ${color}-t`;
-            t.onclick = () => moveToken(color, id);
-            parent.appendChild(t);
-        }
-
-        // 2. पासा फेंकना (Dice Logic)
-        function rollDice() {
-            if (canMove) return; // जब तक चाल पूरी न हो, दोबारा पासा नहीं
-            diceVal = Math.floor(Math.random()*6)+1;
-            const icons = ["","⚀","⚁","⚂","⚃","⚄","⚅"];
-            document.getElementById('dice-btn').innerHTML = icons[diceVal];
-            document.getElementById('status').innerHTML = "नंबर आया: " + diceVal;
-            
-            canMove = true; 
-            document.getElementById('status').style.color = "#2ecc71"; // 'चाल चलें' का संकेत
-            if(navigator.vibrate) navigator.vibrate(50);
-        }
-
-        // 3. गोटी की चाल (Movement Logic)
-        function moveToken(color, id) {
-            if (!canMove) return;
-            
-            // मनोवैज्ञानिक नियम: केवल '6' आने पर ही गोटी घर से बाहर निकलेगी
-            if (diceVal !== 6) {
-                alert("गोटी बाहर निकालने के लिए 6 चाहिए!");
-            } else {
-                alert("शानदार! गोटी मैदान में उतर गई।");
-                // यहाँ हम गोटी को रास्ते के पहले खाने (Cell 105) पर भेजेंगे
-            }
-            
-            canMove = false; // चाल खत्म
-            document.getElementById('status').innerHTML = "अगला पासा फेंकें";
-            document.getElementById('status').style.color = "#fbbf24";
+        function roll() {
+            const v = Math.floor(Math.random()*6)+1;
+            document.getElementById('dice-btn').innerHTML = ["","⚀","⚁","⚂","⚃","⚄","⚅"][v];
+            document.getElementById('msg').innerHTML = "नंबर आया: " + v;
         }
 
         window.onload = init;
