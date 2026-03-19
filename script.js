@@ -166,3 +166,61 @@ window.onload = () => {
         setTimeout(() => document.getElementById('splash-screen').style.display = 'none', 800);
     }, 2500);
 };
+// --- माय लूडो: अल्ट्रा-फास्ट स्टार्ट इंजन ---
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. सबसे पहले गेम का ढांचा तैयार करें
+    initGame();
+
+    // 2. स्वागत पन्ने को जबरदस्ती हटाने का 'मास्टर टाइमर'
+    const splash = document.getElementById('splash-screen');
+    
+    // 3 सेकंड बाद दरवाजा हर हाल में खुलेगा
+    setTimeout(() => {
+        if (splash) {
+            splash.style.transition = "opacity 0.8s ease-out";
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.style.display = 'none';
+            }, 800);
+        }
+    }, 3000); 
+});
+
+function initGame() {
+    const board = document.getElementById('ludo-board');
+    if (!board) return; // अगर बोर्ड नहीं मिला तो रुक जाओ
+
+    board.innerHTML = ''; 
+    for (let i = 0; i < 225; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        
+        let row = Math.floor(i / 15);
+        let col = i % 15;
+
+        // कोनों को प्रीमियम रंग देना
+        if (row < 6 && col < 6) cell.classList.add('red-home');
+        else if (row < 6 && col > 8) cell.classList.add('green-home');
+        else if (row > 8 && col < 6) cell.classList.add('blue-home');
+        else if (row > 8 && col > 8) cell.classList.add('yellow-home');
+        else if (row === 7 && col === 7) cell.classList.add('center-star');
+
+        board.appendChild(cell);
+    }
+}
+
+function rollDice() {
+    const diceWrapper = document.getElementById('dice-wrapper');
+    const diceCube = document.getElementById('dice-cube');
+    
+    diceWrapper.classList.add('rolling-animation');
+    
+    setTimeout(() => {
+        const val = Math.floor(Math.random() * 6) + 1;
+        const icons = ["", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+        diceCube.innerHTML = icons[val];
+        diceWrapper.classList.remove('rolling-animation');
+        document.getElementById('instruction-text').innerHTML = `नंबर आया: ${val}`;
+    }, 600);
+}
