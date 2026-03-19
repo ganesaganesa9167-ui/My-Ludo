@@ -3,49 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Ludo - Royal Architect v6</title>
+    <title>My Ludo - Perfect Architect v7</title>
     <style>
         :root {
-            --bg: #0f172a; --gold: #fbbf24;
+            --bg: #020617; --gold: #fbbf24;
             --red: #ef4444; --green: #22c55e; --blue: #3b82f6; --yellow: #facc15;
         }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; justify-content: center; }
-        
-        /* असली 15x15 बोर्ड डिजाइन */
-        .board { 
-            display: grid; grid-template-columns: repeat(15, 1fr); 
-            width: 95vw; height: 95vw; max-width: 400px; max-height: 400px; 
-            background: #fff; border: 8px solid #c5a059; border-radius: 10px; box-shadow: 0 0 50px #000; position: relative;
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; justify-content: center; overflow: hidden; }
+
+        /* असली लूडो आर्किटेक्चर (15x15 Grid) */
+        .ludo-container {
+            position: relative;
+            width: 95vw; height: 95vw; max-width: 400px; max-height: 400px;
+            background: #fff; border: 8px solid #c5a059; border-radius: 12px;
+            display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr);
+            box-shadow: 0 0 60px #000;
         }
 
-        .cell { border: 0.1px solid rgba(0,0,0,0.08); position: relative; display: flex; align-items: center; justify-content: center; }
-        
-        /* केंद्र का शाही त्रिभुज (The Finish Area) */
-        .center-home {
+        .cell { border: 0.1px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; font-size: 10px; }
+
+        /* 1. चारों कोने के बड़े घर (6x6 Blocks) */
+        .home { position: relative; z-index: 5; border: 1px solid #000; display: flex; flex-wrap: wrap; padding: 10%; justify-content: space-around; align-items: center; }
+        .red-home { grid-area: 1 / 1 / 7 / 7; background: var(--red); }
+        .green-home { grid-area: 1 / 10 / 7 / 16; background: var(--green); }
+        .blue-home { grid-area: 10 / 1 / 16 / 7; background: var(--blue); }
+        .yellow-home { grid-area: 10 / 10 / 16 / 16; background: var(--yellow); }
+
+        /* घर के अंदर गोटियों के लिए सफ़ेद गोले */
+        .token-slot { width: 35%; height: 35%; background: rgba(255,255,255,0.4); border-radius: 50%; border: 2px solid white; box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
+
+        /* 2. केंद्र का फिनिश पॉइंट (3x3 Block) */
+        .center-finish {
             grid-area: 7 / 7 / 10 / 10;
             background: conic-gradient(var(--green) 0deg 90deg, var(--yellow) 90deg 180deg, var(--blue) 180deg 270deg, var(--red) 270deg 360deg);
-            z-index: 5; border: 2px solid #000;
+            border: 2px solid #000; z-index: 10;
         }
 
-        /* होम एरिया और शाही रास्ते */
-        .home-red { grid-area: 1 / 1 / 7 / 7; background: var(--red); }
-        .home-green { grid-area: 1 / 10 / 7 / 16; background: var(--green); }
-        .home-blue { grid-area: 10 / 1 / 16 / 7; background: var(--blue); }
-        .home-yellow { grid-area: 10 / 10 / 16 / 16; background: var(--yellow); }
+        /* 3. रास्तों के रंग (Correct Path Mapping) */
+        .p-red { background: var(--red); } .p-green { background: var(--green); }
+        .p-blue { background: var(--blue); } .p-yellow { background: var(--yellow); }
+        .star { background: #e2e8f0; } /* Safe Spots */
 
-        /* रास्तों के सटीक रंग (Correct Mapping) */
-        .path-red { background: var(--red); } .path-green { background: var(--green); }
-        .path-blue { background: var(--blue); } .path-yellow { background: var(--yellow); }
-        .safe-star { background: #e2e8f0; font-size: 10px; }
-
-        /* गोटियों का प्रीमियम लुक */
-        .token { 
-            width: 80%; height: 80%; border-radius: 50%; border: 2px solid white; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 10;
-        }
-        .red-t { background: radial-gradient(circle at 30% 30%, #ffaaaa, var(--red)); }
-        .green-t { background: radial-gradient(circle at 30% 30%, #aaffaa, var(--green)); }
-
+        /* पासा और बटन */
         #dice-btn { 
             width: 70px; height: 70px; background: white; border-radius: 15px; margin-top: 20px;
             display: flex; align-items: center; justify-content: center; font-size: 40px; color: #1e293b;
@@ -55,36 +54,43 @@
 </head>
 <body>
 
-    <h1 style="color:var(--gold); font-size: 1.5rem; margin-bottom: 5px;">👑 MY LUDO 👑</h1>
-    <div id="board" class="board">
-        <div class="home-red"></div>
-        <div class="home-green"></div>
-        <div class="home-blue"></div>
-        <div class="home-yellow"></div>
-        <div class="center-home"></div>
-    </div>
+    <h1 style="color:var(--gold); font-size: 1.8rem; margin-bottom: 10px; font-family: 'Rajdhani';">👑 MY LUDO 👑</h1>
+    
+    <div class="ludo-container" id="ludo-board">
+        <div class="home red-home"><div class="token-slot"></div><div class="token-slot"></div><div class="token-slot"></div><div class="token-slot"></div></div>
+        <div class="home green-home"><div class="token-slot"></div><div class="token-slot"></div><div class="token-slot"></div><div class="token-slot"></div></div>
+        <div class="home blue-home"><div class="token-slot"></div><div class="token-slot"></div><div class="token-slot"></div><div class="token-slot"></div></div>
+        <div class="home yellow-home"><div class="token-slot"></div><div class="token-slot"></div><div class="token-slot"></div><div class="token-slot"></div></div>
+        
+        <div class="center-finish"></div>
+
+        </div>
     
     <div id="dice-btn" onclick="roll()">🎲</div>
-    <p id="msg" style="margin-top:10px; font-weight:bold; color:var(--gold)">पासा फेंकें</p>
+    <p id="msg" style="margin-top:10px; font-weight:bold; color:var(--gold)">शाही पासा फेंकें</p>
 
     <script>
-        function init() {
-            const b = document.getElementById('board');
+        function createPath() {
+            const b = document.getElementById('ludo-board');
             for(let i=0; i<225; i++) {
-                let r=Math.floor(i/15), c=i%15;
-                // अगर सेल होम एरिया के अंदर नहीं है और सेंटर में नहीं है, तो उसे बनाएं
-                if(!((r<6 && c<6) || (r<6 && c>8) || (r>8 && c<6) || (r>8 && c>8) || (r>=6 && r<=8 && c>=6 && c<=8))) {
+                let r=Math.floor(i/15)+1, c=(i%15)+1;
+                // केवल उन जगहों पर सेल बनाओ जहाँ घर या सेंटर नहीं है
+                if(!((r<=6 && c<=6) || (r<=6 && c>=10) || (r>=10 && c<=6) || (r>=10 && c>=10) || (r>=7 && r<=9 && c>=7 && c<=9))) {
                     const cell = document.createElement('div');
                     cell.className = 'cell';
-                    
-                    // शाही रास्ते का सटीक नक्शा
-                    if (r === 7 && c >= 1 && c <= 5) cell.classList.add('path-red'); // लाल रास्ता
-                    if (c === 7 && r >= 1 && r <= 5) cell.classList.add('path-green'); // हरा रास्ता
-                    if (c === 7 && r >= 9 && r <= 13) cell.classList.add('path-blue'); // नीला रास्ता
-                    if (r === 7 && c >= 9 && c <= 13) cell.classList.add('path-yellow'); // पीला रास्ता
-                    
-                    // सुरक्षित स्थान (Safe Spots)
-                    if ((r===6 && c===1) || (r===1 && c===8) || (r===8 && c===13) || (r===13 && c===6)) cell.innerHTML = "⭐";
+                    cell.style.gridArea = `${r} / ${c}`;
+
+                    // सटीक रास्ता कलरिंग
+                    if (r === 8 && c >= 2 && c <= 6) cell.classList.add('p-red');
+                    if (c === 8 && r >= 2 && r <= 6) cell.classList.add('p-green');
+                    if (c === 8 && r >= 10 && r <= 14) cell.classList.add('p-blue');
+                    if (r === 8 && c >= 10 && c <= 14) cell.classList.add('p-yellow');
+
+                    // स्टार्टिंग पॉइंट और स्टार्स
+                    if ((r===7 && c===2) || (r===2 && c===9) || (r===9 && c===14) || (r===14 && c===7)) {
+                        cell.innerHTML = "⭐";
+                        cell.classList.add('star');
+                    }
                     
                     b.appendChild(cell);
                 }
@@ -95,9 +101,10 @@
             const v = Math.floor(Math.random()*6)+1;
             document.getElementById('dice-btn').innerHTML = ["","⚀","⚁","⚂","⚃","⚄","⚅"][v];
             document.getElementById('msg').innerHTML = "नंबर आया: " + v;
+            if(navigator.vibrate) navigator.vibrate(40);
         }
 
-        window.onload = init;
+        window.onload = createPath;
     </script>
 </body>
 </html>
