@@ -1,54 +1,102 @@
-<script>
-    function buildBoard() {
-        const b = document.getElementById('board');
-        b.innerHTML = ''; // बोर्ड साफ़ करें
-        
-        // 1. घर और केंद्र के डिव को पहले ही बना लें (यह कोड सही है)
-        b.innerHTML = `
-            <div class="home red-home"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-            <div class="home green-home"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-            <div class="home blue-home"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-            <div class="home yellow-home"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
-            <div class="center-home">
-                <div class="triangle t-top"></div>
-                <div class="triangle t-right"></div>
-                <div class="triangle t-bottom"></div>
-                <div class="triangle t-left"></div>
-            </div>
-        `;
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Ludo - Final Precision v10</title>
+    <style>
+        :root {
+            --red: #ef4444; --green: #22c55e; --blue: #3b82f6; --yellow: #facc15;
+            --bg: #020617; --gold: #fbbf24;
+        }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
 
-        // 2. गणितीय रास्ता (Path) बनाएँ और केवल ८ सितारे लगाएँ
-        for(let i=0; i<225; i++) {
-            let r=Math.floor(i/15)+1, c=(i%15)+1;
-            // घर और केंद्र को छोड़कर सेल्स बनाएँ
-            if(!((r<=6 && c<=6) || (r<=6 && c>=10) || (r>=10 && c<=6) || (r>=10 && c>=10) || (r>=7 && r<=9 && c>=7 && c<=9))) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                cell.style.gridArea = `${r} / ${c}`;
+        /* 15x15 का सख्त गणितीय ग्रिड */
+        .ludo-board {
+            display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr);
+            width: 95vw; height: 95vw; max-width: 420px; max-height: 420px;
+            background: #fff; border: 10px solid #c5a059; border-radius: 12px; box-shadow: 0 0 50px #000; position: relative;
+        }
 
-                // --- सटीक शाही रास्ते ---
-                if (r === 8 && c >= 2 && c <= 6) cell.classList.add('p-red');
-                if (c === 8 && r >= 2 && r <= 6) cell.classList.add('p-green');
-                if (r === 8 && c >= 10 && c <= 14) cell.classList.add('p-yellow');
-                if (c === 8 && r >= 10 && r <= 14) cell.classList.add('p-blue');
+        .cell { border: 0.1px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; position: relative; }
 
-                // --- सितारों का वैज्ञानिक स्थान (Exactly 8 Safe Spots) ---
-                // यह लूडो के मानक नियमों के अनुसार सटीक गणितीय स्थान हैं
-                const stars = [
-                    {r:7, c:2}, {r:9, c:3},   // Red Area Stars
-                    {r:2, c:9}, {r:3, c:7},   // Green Area Stars
-                    {r:9, c:14}, {r:7, c:13}, // Yellow Area Stars
-                    {r:14, c:7}, {r:13, c:9}  // Blue Area Stars
-                ];
-                
-                if (stars.some(s => s.r === r && s.c === c)) {
-                    cell.innerHTML = "⭐";
-                    cell.classList.add('star');
+        /* बड़े घर (6x6 Blocks) */
+        .home { grid-column: span 6; grid-row: span 6; border: 2px solid #000; display: grid; grid-template-columns: repeat(2, 1fr); padding: 12%; gap: 15px; }
+        .red-home { grid-area: 1 / 1 / 7 / 7; background: var(--red); }
+        .green-home { grid-area: 1 / 10 / 7 / 16; background: var(--green); }
+        .blue-home { grid-area: 10 / 1 / 16 / 7; background: var(--blue); }
+        .yellow-home { grid-area: 10 / 10 / 16 / 16; background: var(--yellow); }
+        .slot { background: #fff; border-radius: 50%; border: 3px solid rgba(255,255,255,0.5); }
+
+        /* केंद्र का संगम (3x3 Conic Triangles) */
+        .center-home {
+            grid-area: 7 / 7 / 10 / 10; border: 2px solid #000;
+            background: conic-gradient(from 45deg, var(--yellow) 0deg 90deg, var(--blue) 90deg 180deg, var(--red) 180deg 270deg, var(--green) 270deg 360deg);
+        }
+
+        /* रास्तों के सटीक रंग */
+        .p-red { background: var(--red); } .p-green { background: var(--green); }
+        .p-blue { background: var(--blue); } .p-yellow { background: var(--yellow); }
+
+        /* 8 गणितीय सितारे (Safe Zones) */
+        .star-cell { background: #cbd5e1; font-weight: bold; color: #1e293b; font-size: 14px; }
+
+        #dice-btn { width: 80px; height: 80px; background: white; border-radius: 15px; margin-top: 20px; display: flex; align-items: center; justify-content: center; font-size: 45px; box-shadow: 0 8px 0 #94a3b8; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h1 style="color:var(--gold); margin-bottom: 10px;">👑 MY LUDO - FINAL 👑</h1>
+    
+    <div class="ludo-board" id="board">
+        <div class="home red-home"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+        <div class="home green-home"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+        <div class="home blue-home"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+        <div class="home yellow-home"><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
+        <div class="center-home"></div>
+    </div>
+    
+    <div id="dice-btn" onclick="roll()">🎲</div>
+    <p id="msg" style="margin-top:10px; font-weight:bold; color:var(--gold)">पासा फेंकें</p>
+
+    <script>
+        function build() {
+            const b = document.getElementById('board');
+            for(let i=0; i<225; i++) {
+                let r=Math.floor(i/15)+1, c=(i%15)+1;
+                if(!((r<=6 && c<=6) || (r<=6 && c>=10) || (r>=10 && c<=6) || (r>=10 && c>=10) || (r>=7 && r<=9 && c>=7 && c<=9))) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.style.gridArea = `${r} / ${c}`;
+
+                    // सटीक रास्ते (Home Stretches)
+                    if (r === 8 && c >= 2 && c <= 6) cell.classList.add('p-red');
+                    if (c === 8 && r >= 2 && r <= 6) cell.classList.add('p-green');
+                    if (c === 8 && r >= 10 && r <= 14) cell.classList.add('p-blue');
+                    if (r === 8 && c >= 10 && c <= 14) cell.classList.add('p-yellow');
+
+                    // केवल 8 गणितीय सितारे (Safe Spots)
+                    const stars = [
+                        {r:7, c:2}, {r:9, c:3},   // Red Area
+                        {r:2, c:9}, {r:3, c:7},   // Green Area
+                        {r:9, c:14}, {r:7, c:13}, // Yellow Area
+                        {r:14, c:7}, {r:13, c:9}  // Blue Area
+                    ];
+                    
+                    if (stars.some(s => s.r === r && s.c === c)) {
+                        cell.innerHTML = "⭐";
+                        cell.classList.add('star-cell');
+                    }
+                    b.appendChild(cell);
                 }
-                
-                b.appendChild(cell);
             }
         }
-    }
-    // ... (रोल फंक्शन और window.onload वही रहेंगे) ...
-</script>
+        function roll() {
+            const v = Math.floor(Math.random()*6)+1;
+            document.getElementById('dice-btn').innerHTML = ["","⚀","⚁","⚂","⚃","⚄","⚅"][v];
+            document.getElementById('msg').innerHTML = "नंबर आया: " + v;
+        }
+        window.onload = build;
+    </script>
+</body>
+</html>
