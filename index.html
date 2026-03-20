@@ -3,66 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ludo Royal Pro v37 - 3D Engine</title>
+    <title>Ludo Royal Pro v39</title>
     <style>
         :root { --r:#ff3e3e; --g:#2ecc71; --b:#3498db; --y:#f1c40f; --gold:#ffd700; --bg:#1a142e; }
         * { margin:0; padding:0; box-sizing:border-box; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color:white; display:flex; flex-direction:column; align-items:center; height:100vh; overflow:hidden; }
 
-        /* --- प्लेयर यूआई --- */
-        .ui-bar { width:100%; display:flex; justify-content:space-between; padding:8px 15px; flex-shrink:0; }
-        .p-box { background:rgba(0,0,0,0.6); border:2.2px solid #555; border-radius:10px; display:flex; align-items:center; padding:5px 10px; gap:8px; min-width:120px; }
-        .active-p { border-color:var(--gold); box-shadow: 0 0 15px var(--gold); background: rgba(255,215,0,0.15); }
-        .av { width:36px; height:36px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:24px; border: 1px solid #000; }
+        /* प्लेयर प्रोफाइल */
+        .ui-bar { width:100%; display:flex; justify-content:space-between; padding:10px 15px; flex-shrink:0; }
+        .p-box { background:rgba(0,0,0,0.6); border:2px solid #555; border-radius:10px; display:flex; align-items:center; padding:5px 10px; gap:8px; min-width:120px; }
+        .active-p { border-color:var(--gold); box-shadow: 0 0 15px var(--gold); }
+        .av { width:36px; height:36px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:24px; }
 
-        /* --- 15x15 पक्का बोर्ड --- */
-        .board-wrap { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
-        .board { 
+        /* --- वज्र ढांचा (The Unbreakable Grid) --- */
+        .board-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; padding: 10px; }
+        .ludo-board { 
             display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr);
-            width:96vw; height:96vw; max-width:400px; max-height:400px;
-            background:#fff; border:8px solid #333; box-shadow:0 15px 50px #000; position:relative;
+            width: 95vw; height: 95vw; max-width: 400px; max-height: 400px;
+            background: #fff; border: 8px solid #333; box-shadow: 0 20px 50px #000;
+            position: relative; aspect-ratio: 1/1; /* डब्बों को चौकोर रखने के लिए */
         }
-        .c { border:0.1px solid #ddd; display:flex; align-items:center; justify-content:center; position:relative; }
-
-        /* बेस एरिया */
-        .base { grid-column: span 6; grid-row: span 6; display:grid; grid-template-columns:repeat(2,1fr); padding:10%; gap:12px; border:1.5px solid #000; z-index:10; }
-        .b-blue { grid-area:1/1/7/7; background:var(--b); }
-        .b-yellow { grid-area:1/10/7/16; background:var(--y); }
-        .b-red { grid-area:10/1/16/7; background:var(--r); }
-        .b-green { grid-area:10/10/16/16; background:var(--g); }
-
-        .slot { background:rgba(0,0,0,0.2); border-radius:50%; width:100%; height:100%; border:2px solid #fff; display:flex; align-items:center; justify-content:center; }
         
-        /* 3D टोकन */
-        .token { 
-            width:85%; height:85%; border-radius:50%; border:2.5px solid #fff; 
-            box-shadow:0 6px 10px #000; cursor:pointer; z-index:100;
-            transition: all 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-        }
-        .rt { background:radial-gradient(circle at 35% 35%, #ff5555, #800); }
-        .active-token { animation: tokenGlow 0.8s infinite alternate; }
-        @keyframes tokenGlow { from { box-shadow: 0 0 5px gold; transform: scale(1); } to { box-shadow: 0 0 25px gold; transform: scale(1.15); } }
+        /* हर डब्बा (Cell) */
+        .c { border: 0.1px solid #ddd; display: flex; align-items: center; justify-content: center; position: relative; width: 100%; height: 100%; }
+
+        /* शाही घर (Hardcoded Areas) */
+        .base { grid-column: span 6; grid-row: span 6; display: grid; grid-template-columns: repeat(2, 1fr); padding: 12%; gap: 10px; border: 1.5px solid #000; z-index: 10; }
+        .b-blue { grid-area: 1/1/7/7; background: var(--b); }
+        .b-yellow { grid-area: 1/10/7/16; background: var(--y); }
+        .b-red { grid-area: 10/1/16/7; background: var(--r); }
+        .b-green { grid-area: 10/10/16/16; background: var(--g); }
+
+        .slot { background: rgba(0,0,0,0.2); border-radius: 50%; width: 100%; height: 100%; border: 2.5px solid #fff; display: flex; align-items: center; justify-content: center; }
         
-        /* 3D जम्प एनीमेशन */
-        .jumping-3d { transform: translateY(-35px) scale(1.5); z-index: 200 !important; box-shadow: 0 25px 35px rgba(0,0,0,0.6) !important; }
+        /* 3D टोकन और जम्प */
+        .token { width: 85%; height: 85%; border-radius: 50%; border: 2.5px solid #fff; box-shadow: 0 5px 10px #000; cursor: pointer; z-index: 100; transition: 0.2s; }
+        .rt { background: radial-gradient(circle at 35% 35%, #ff6b6b, #800); }
+        .active-token { animation: glow 0.8s infinite alternate; transform: scale(1.1); }
+        @keyframes glow { from { box-shadow: 0 0 5px gold; } to { box-shadow: 0 0 25px gold; } }
+        .jump-3d { transform: translateY(-30px) scale(1.5); z-index: 200 !important; box-shadow: 0 25px 35px rgba(0,0,0,0.5) !important; }
 
-        .center { grid-area:7/7/10/10; background:conic-gradient(from 45deg, var(--y) 0deg 90deg, var(--g) 90deg 180deg, var(--r) 180deg 270deg, var(--b) 270deg 360deg); border:2px solid #000; z-index:15; }
-        .p-red { background:var(--r)!important; }
-        .star { font-size:1.4rem; font-weight:bold; }
+        .center { grid-area: 7/7/10/10; background: conic-gradient(from 45deg, var(--y) 0deg 90deg, var(--g) 90deg 180deg, var(--r) 180deg 270deg, var(--b) 270deg 360deg); border: 2px solid #000; z-index: 20; }
 
-        /* --- पासा (FIXED BOTTOM PANEL) --- */
-        .footer { 
-            width:100%; display:flex; flex-direction:column; align-items:center; 
-            padding:15px; background:#120d24; border-top:3px solid var(--gold); 
-            position: relative; z-index: 300;
-        }
-        .dice-btn { 
-            width:80px; height:80px; background:#fff; border-radius:18px; 
-            color:#000; font-size:50px; display:flex; align-items:center; 
-            justify-content:center; box-shadow: 0 8px 0 #94a3b8; cursor:pointer; 
-            transition: 0.1s;
-        }
-        .dice-btn:active { transform: translateY(6px); box-shadow: 0 2px 0 #94a3b8; }
+        /* रास्तों की सटीक रंगाई (Manual Matching) */
+        .p-r { background: var(--r) !important; } .p-g { background: var(--g) !important; }
+        .p-b { background: var(--b) !important; } .p-y { background: var(--y) !important; }
+        .star { font-size: 1.4rem; font-weight: bold; }
+
+        /* पासा कंट्रोल (Fixed at Bottom) */
+        .footer { width:100%; display:flex; flex-direction:column; align-items:center; padding:15px; background:#120d24; border-top:3px solid var(--gold); position: sticky; bottom: 0; z-index: 300; }
+        .dice-box { width:80px; height:80px; background:#fff; border-radius:18px; color:#000; font-size:50px; display:flex; align-items:center; justify-content:center; box-shadow: 0 8px 0 #94a3b8; cursor:pointer; }
     </style>
 </head>
 <body>
@@ -75,8 +65,8 @@
         <div class="p-box" id="u-yellow" style="border-color:var(--y)"><div class="av">🤖</div><div style="font-size:11px;">कंप्यूटर<br>⚔️ 0</div></div>
     </div>
 
-    <div class="board-wrap">
-        <div class="board" id="board">
+    <div class="board-container">
+        <div class="ludo-board" id="board">
             <div class="base b-blue" id="blue-base"></div>
             <div class="base b-yellow" id="yellow-base"></div>
             <div class="base b-red" id="red-base"></div>
@@ -91,27 +81,34 @@
     </div>
 
     <div class="footer">
-        <div class="dice-btn" id="dice" onclick="roll()">🎲</div>
-        <div id="msg" style="color:var(--gold); font-weight:bold; margin-top:8px;">पासा छुएं</div>
+        <div class="dice-box" id="dice" onclick="roll()">🎲</div>
+        <div id="msg" style="color:var(--gold); font-weight:bold; margin-top:8px;">पासा छुएं!</div>
     </div>
 
     <script>
         let diceVal = 0, turn = 'red', canMove = false;
         let positions = { red:[-1,-1,-1,-1] }; 
-
         const redPath = ["14-7","13-7","12-7","11-7","10-7","9-6","9-5","9-4","9-3","9-2","9-1","8-1","7-1","7-2","7-3","7-4","7-5","7-6","6-7","5-7","4-7","3-7","2-7","1-7","1-8","1-9","2-9","3-9","4-9","5-9","6-9","7-10","7-11","7-12","7-13","7-14","7-15","8-15","9-15","9-14","9-13","9-12","9-11","9-10","10-9","11-9","12-9","13-9","14-9","15-9","15-8","14-8","13-8","12-8","11-8","10-8"];
 
         function build() {
             const b = document.getElementById('board');
-            const colorStars = { "14-7":"var(--r)", "7-2":"var(--b)", "2-9":"var(--y)", "9-14":"var(--g)" };
+            const stars = { "14-7":"var(--r)", "7-2":"var(--b)", "2-9":"var(--y)", "9-14":"var(--g)" };
+            
             for(let r=1; r<=15; r++) {
                 for(let c=1; c<=15; c++) {
+                    // अगर डब्बा बेस या सेंटर में नहीं है, तभी सेल बनाएं
                     if(!((r<=6 && c<=6) || (r<=6 && c>=10) || (r>=10 && c<=6) || (r>=10 && c>=10) || (r>=7 && r<=9 && c>=7 && c<=9))) {
                         const cell = document.createElement('div');
                         cell.className = 'c'; cell.id = `c-${r}-${c}`; cell.style.gridArea = `${r}/${c}`;
-                        if (c===8 && r>=10 && r<=14) cell.classList.add('p-red');
+                        
+                        // पक्की रंगाई (Manual Pathing)
+                        if (c===8 && r>=10 && r<=14) cell.classList.add('p-r');
+                        if (r===8 && c>=2 && c<=6) cell.classList.add('p-b');
+                        if (c===8 && r>=2 && r<=6) cell.classList.add('p-y');
+                        if (r===8 && c>=10 && c<=14) cell.classList.add('p-g');
+
                         const pos = `${r}-${c}`;
-                        if (colorStars[pos]) { cell.innerHTML="★"; cell.style.color=colorStars[pos]; cell.classList.add('star'); }
+                        if (stars[pos]) { cell.innerHTML="★"; cell.style.color=stars[pos]; cell.classList.add('star'); }
                         b.appendChild(cell);
                     }
                 }
@@ -126,7 +123,7 @@
                 const slot = document.createElement('div'); slot.className = 'slot';
                 const t = document.createElement('div');
                 t.className = `token rt`; t.id = `t-red-${i}`;
-                t.onclick = () => moveToken('red', i);
+                t.onclick = () => move('red', i);
                 slot.appendChild(t); rb.appendChild(slot);
             }
         }
@@ -137,17 +134,11 @@
             diceVal = Math.floor(Math.random()*6)+1;
             document.getElementById('dice').innerHTML = ["","⚀","⚁","⚂","⚃","⚄","⚅"][diceVal];
             document.getElementById('msg').innerHTML = "आया: " + diceVal;
-            
-            let out = positions[turn].some(p => p !== -1);
-            if (!out && diceVal !== 6) {
-                setTimeout(() => document.getElementById('msg').innerHTML = "अगली बारी...", 1000);
-            } else {
-                canMove = true;
-                document.querySelectorAll('.rt').forEach(el => el.classList.add('active-token'));
-            }
+            canMove = true;
+            document.querySelectorAll('.rt').forEach(el => el.classList.add('active-token'));
         }
 
-        async function moveToken(color, idx) {
+        async function move(color, idx) {
             if (!canMove || color !== turn) return;
             const token = document.getElementById(`t-${color}-${idx}`);
             
@@ -163,11 +154,11 @@
                     positions[color][idx]++;
                     if (positions[color][idx] < redPath.length) {
                         const target = document.getElementById(`c-${redPath[positions[color][idx]]}`);
-                        token.classList.add('jumping-3d');
+                        token.classList.add('jump-3d');
                         document.getElementById('s-move').play();
                         target.appendChild(token);
                         await new Promise(r => setTimeout(r, 260));
-                        token.classList.remove('jumping-3d');
+                        token.classList.remove('jump-3d');
                     }
                 }
                 finish();
@@ -185,4 +176,3 @@
     </script>
 </body>
 </html>
-    
