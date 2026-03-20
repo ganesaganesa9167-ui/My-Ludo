@@ -3,115 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Ludo Royal v28 - Jump Engine</title>
+    <title>My Ludo Royal v29 - Full Movement</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --red: #ff3e3e; --green: #2ecc71; --blue: #3498db; --yellow: #f1c40f;
-            --bg: #312651; --gold: #ffd700;
-        }
+        :root { --red: #ff3e3e; --green: #2ecc71; --blue: #3498db; --yellow: #f1c40f; --bg: #221a3a; --gold: #ffd700; }
         * { box-sizing: border-box; font-family: 'Rajdhani', sans-serif; }
         body { background: var(--bg); margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 100vh; color: white; overflow: hidden; }
 
-        /* प्लेयर प्रोफाइल बार */
+        /* प्लेयर प्रोफाइल - जैसा आपकी फोटो में है */
         .ui-bar { width: 100%; display: flex; justify-content: space-between; padding: 10px 15px; }
-        .p-box { background: rgba(0,0,0,0.4); border: 2px solid #555; border-radius: 8px; display: flex; align-items: center; padding: 4px 8px; gap: 8px; min-width: 120px; transition: 0.3s; }
+        .p-box { background: rgba(0,0,0,0.5); border: 2px solid #555; border-radius: 8px; display: flex; align-items: center; padding: 5px 10px; gap: 8px; min-width: 120px; transition: 0.3s; }
         .active-p { border-color: var(--gold); box-shadow: 0 0 15px var(--gold); background: rgba(255,215,0,0.1); }
-        .p-avatar { width: 35px; height: 35px; background: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+        .p-avatar { width: 35px; height: 35px; background: #fff; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
 
-        /* बोर्ड ढांचा */
+        /* बोर्ड - 15x15 मज़बूत ढांचा */
         .board { 
             display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr);
             width: 98vw; height: 98vw; max-width: 420px; max-height: 420px;
-            background: #fff; border: 6px solid #222; border-radius: 4px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); position: relative;
+            background: #fff; border: 8px solid #333; box-shadow: 0 10px 40px #000; position: relative;
         }
         .cell { border: 0.1px solid #ddd; display: flex; align-items: center; justify-content: center; position: relative; }
 
-        .home { grid-column: span 6; grid-row: span 6; border: 1px solid #000; display: grid; grid-template-columns: repeat(2, 1fr); padding: 12%; gap: 10px; }
-        .h-blue { grid-area: 1/1/7/7; background: var(--blue); }
-        .h-yellow { grid-area: 1/10/7/16; background: var(--yellow); }
-        .h-red { grid-area: 10/1/16/7; background: var(--red); }
-        .h-green { grid-area: 10/10/16/16; background: var(--green); }
+        /* कोनों के घर (As per your request) */
+        .home { grid-column: span 6; grid-row: span 6; display: grid; grid-template-columns: repeat(2, 1fr); padding: 12%; gap: 10px; border: 1px solid #000; z-index: 5; }
+        .h-red { grid-area: 1/1/7/7; background: var(--red); }
+        .h-green { grid-area: 1/10/7/16; background: var(--green); }
+        .h-blue { grid-area: 10/1/16/7; background: var(--blue); }
+        .h-yellow { grid-area: 10/10/16/16; background: var(--yellow); }
         
-        .slot { background: rgba(255,255,255,0.3); border-radius: 50%; width: 100%; height: 100%; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; }
-        .token { 
-            width: 85%; height: 85%; border-radius: 50%; border: 2px solid white; 
-            box-shadow: 0 4px 8px #000; cursor: pointer; z-index: 100;
-            transition: transform 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-        }
-        .bt { background: radial-gradient(circle, #5dade2, #1b4f72); }
-        .yt { background: radial-gradient(circle, #f7dc6f, #b7950b); }
-        .rt { background: radial-gradient(circle, #ec7063, #7b241c); }
-        .gt { background: radial-gradient(circle, #58d68d, #186a3b); }
+        .slot { background: rgba(0,0,0,0.2); border-radius: 50%; width: 100%; height: 100%; border: 2.5px solid #fff; display: flex; align-items: center; justify-content: center; }
+        .token { width: 85%; height: 85%; border-radius: 50%; border: 2px solid white; box-shadow: 0 4px 8px #000; cursor: pointer; z-index: 100; }
+        .rt { background: radial-gradient(circle, #ff5555, #800); }
+        .gt { background: radial-gradient(circle, #55ff55, #004d00); }
+        .bt { background: radial-gradient(circle, #5555ff, #000080); }
+        .yt { background: radial-gradient(circle, #ffff55, #990); }
 
-        /* जम्प एनीमेशन */
-        .jumping { transform: scale(1.4) translateY(-10px); z-index: 200 !important; }
-        .glow { animation: pulse 0.6s infinite alternate; }
-        @keyframes pulse { from { filter: brightness(1); transform: scale(1); } to { filter: brightness(1.5); transform: scale(1.1); } }
+        .active-token { animation: pulse 0.7s infinite alternate; box-shadow: 0 0 15px gold; }
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.15); } }
 
-        .center { grid-area: 7/7/10/10; background: conic-gradient(from 45deg, var(--yellow) 0deg 90deg, var(--green) 90deg 180deg, var(--red) 180deg 270deg, var(--blue) 270deg 360deg); border: 2px solid #000; z-index: 20; }
+        .center { grid-area: 7/7/10/10; background: conic-gradient(from 45deg, var(--yellow) 0deg 90deg, var(--blue) 90deg 180deg, var(--red) 180deg 270deg, var(--green) 270deg 360deg); border: 2px solid #000; z-index: 20; }
 
-        /* रास्ते के रंग */
-        .p-blue { background: var(--blue) !important; } .p-yellow { background: var(--yellow) !important; }
+        /* रास्तों की सूक्ष्म रंगाई */
         .p-red { background: var(--red) !important; } .p-green { background: var(--green) !important; }
-        .star { font-size: 1.4rem; font-weight: bold; }
+        .p-blue { background: var(--blue) !important; } .p-yellow { background: var(--yellow) !important; }
+        .star { font-size: 1.3rem; font-weight: bold; }
 
-        /* कंट्रोल पैनल */
-        .footer { width: 100%; display: flex; justify-content: space-around; align-items: center; padding: 15px; background: #221a3a; border-top: 2px solid var(--gold); }
-        .dice-box { width: 75px; height: 75px; background: #fff; border-radius: 12px; color: #000; font-size: 45px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 0 #bdc3c7; cursor: pointer; transition: 0.1s; }
-        .dice-box:active { transform: translateY(4px); box-shadow: 0 2px 0 #bdc3c7; }
+        /* बॉटम कंट्रोल */
+        .footer { width: 100%; display: flex; justify-content: space-around; align-items: center; padding: 15px; background: #1a142e; border-top: 2px solid var(--gold); }
+        .dice-box { width: 75px; height: 75px; background: #fff; border-radius: 15px; color: #000; font-size: 45px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 0 #bdc3c7; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div class="ui-bar">
-        <div class="p-box" id="p-blue" style="border-color:var(--blue)"><div class="p-avatar">🤖</div><div style="font-size:11px;">कंप्यूटर<br>⚔️ 0</div></div>
-        <div class="p-box" id="p-yellow" style="border-color:var(--yellow)"><div class="p-avatar">🤖</div><div style="font-size:11px;">कंप्यूटर<br>⚔️ 0</div></div>
+        <div class="p-box" id="p-red-ui" style="border-color:var(--red)"><div class="p-avatar">🤖</div><div style="font-size:11px;">कंप्यूटर<br>⚔️ 0</div></div>
+        <div class="p-box" id="p-green-ui" style="border-color:var(--green)"><div class="p-avatar">🤖</div><div style="font-size:11px;">कंप्यूटर<br>⚔️ 0</div></div>
     </div>
 
     <div class="board" id="board">
-        <div class="home h-blue" id="blue-base"></div>
-        <div class="home h-yellow" id="yellow-base"></div>
         <div class="home h-red" id="red-base"></div>
         <div class="home h-green" id="green-base"></div>
+        <div class="home h-blue" id="blue-base"></div>
+        <div class="home h-yellow" id="yellow-base"></div>
         <div class="center"></div>
     </div>
 
     <div class="ui-bar">
-        <div class="p-box active-p" id="p-red" style="border-color:var(--red)"><div class="p-avatar">👨</div><div style="font-size:11px;">खिलाड़ी<br>⚔️ 0</div></div>
-        <div class="p-box" id="p-green" style="border-color:var(--green)"><div class="p-avatar">🤖</div><div style="font-size:11px;">कंप्यूटर<br>⚔️ 0</div></div>
+        <div class="p-box active-p" id="p-blue-ui" style="border-color:var(--blue)"><div class="p-avatar">👨</div><div style="font-size:11px;">खिलाड़ी<br>⚔️ 0</div></div>
+        <div class="p-box" id="p-yellow-ui" style="border-color:var(--yellow)"><div class="p-avatar">🤖</div><div style="font-size:11px;">कंप्यूटर<br>⚔️ 0</div></div>
     </div>
 
     <div class="footer">
-        <div id="msg" style="font-weight:bold; color:var(--gold); position:absolute; top:-40px;">पासा छुएं</div>
+        <div id="msg" style="font-weight:bold; color:var(--gold); position:absolute; top:-35px;">पासा छुएं</div>
         <div class="dice-box" id="dice" onclick="roll()">🎲</div>
     </div>
 
     <script>
-        let diceNum = 0, turn = 'red', canMove = false;
-        // गोटियों की पोजीशन ट्रैक करने के लिए
-        let tokenPos = { red: [-1, -1, -1, -1], green: [-1, -1, -1, -1], blue: [-1, -1, -1, -1], yellow: [-1, -1, -1, -1] };
+        let diceVal = 0, turn = 'blue', canMove = false;
+        let tokenPos = { blue: [-1,-1,-1,-1], red: [-1,-1,-1,-1], green: [-1,-1,-1,-1], yellow: [-1,-1,-1,-1] };
 
-        // लाल खिलाड़ी का पूर्ण रास्ता (Reference: Official Ludo Path)
-        const redPath = ["7-2","7-3","7-4","7-5","7-6","6-7","5-7","4-7","3-7","2-7","1-7","1-8","1-9","2-9","3-9","4-9","5-9","6-9","7-10","7-11","7-12","7-13","7-14","7-15","8-15","9-15","9-14","9-13","9-12","9-11","9-10","10-9","11-9","12-9","13-9","14-9","15-9","15-8","15-7","14-7","13-7","12-7","11-7","10-7","9-6","9-5","9-4","9-3","9-2","9-1","8-1","8-2","8-3","8-4","8-5","8-6"];
+        // पूरे बोर्ड का मास्टर रास्ता (52 cells)
+        const masterPath = ["9-2","9-3","9-4","9-5","9-6","10-7","11-7","12-7","13-7","14-7","15-7","15-8","15-9","14-9","13-9","12-9","11-9","10-9","9-10","9-11","9-12","9-13","9-14","9-15","8-15","7-15","7-14","7-13","7-12","7-11","7-10","6-9","5-9","4-9","3-9","2-9","1-9","1-8","1-7","2-7","3-7","4-7","5-7","6-7","7-6","7-5","7-4","7-3","7-2","7-1","8-1","8-2"];
 
         function build() {
             const b = document.getElementById('board');
-            const cStars = { "7-2":"#3498db", "2-9":"#f1c40f", "14-7":"#ff3e3e", "9-14":"#2ecc71" };
-            const gStars = ["9-3", "3-7", "7-13", "13-9"];
+            const stars = { "9-2":"var(--blue)", "2-9":"var(--green)", "14-9":"var(--yellow)", "7-2":"var(--red)" };
+            const greyStars = ["9-14", "13-9", "7-13", "3-7", "9-3", "7-4"];
 
             for(let r=1; r<=15; r++) {
                 for(let c=1; c<=15; c++) {
                     if(!((r<=6 && c<=6) || (r<=6 && c>=10) || (r>=10 && c<=6) || (r>=10 && c>=10) || (r>=7 && r<=9 && c>=7 && c<=9))) {
                         const cell = document.createElement('div');
                         cell.className = 'cell'; cell.id = `c-${r}-${c}`; cell.style.gridArea = `${r}/${c}`;
-                        if (r===8 && c>=2 && c<=6) cell.classList.add('p-blue');
-                        if (c===8 && r>=2 && r<=6) cell.classList.add('p-yellow');
-                        if (c===8 && r>=10 && r<=14) cell.classList.add('p-red');
-                        if (r===8 && c>=10 && c<=14) cell.classList.add('p-green');
+                        // रास्तों का रंग
+                        if (r===8 && c>=2 && c<=6) cell.classList.add('p-red');
+                        if (c===8 && r>=2 && r<=6) cell.classList.add('p-green');
+                        if (r===8 && c>=10 && c<=14) cell.classList.add('p-yellow');
+                        if (c===8 && r>=10 && r<=14) cell.classList.add('p-blue');
+
                         const p = `${r}-${c}`;
-                        if (cStars[p]) { cell.innerHTML = "★"; cell.style.color = cStars[p]; cell.classList.add('star'); }
-                        else if (gStars.includes(p)) { cell.innerHTML = "★"; cell.style.color = "#ccc"; cell.classList.add('star'); }
+                        if (stars[p]) { cell.innerHTML = "★"; cell.style.color = stars[p]; cell.classList.add('star'); }
+                        else if (greyStars.includes(p)) { cell.innerHTML = "★"; cell.style.color = "#ccc"; cell.classList.add('star'); }
                         b.appendChild(cell);
                     }
                 }
@@ -120,14 +112,14 @@
         }
 
         function setupTokens() {
-            ['red', 'green', 'blue', 'yellow'].forEach(color => {
+            ['blue', 'red', 'green', 'yellow'].forEach(color => {
                 const base = document.getElementById(`${color}-base`);
                 base.innerHTML = '';
                 for(let i=0; i<4; i++) {
                     const slot = document.createElement('div'); slot.className = 'slot';
                     const t = document.createElement('div');
                     t.className = `token ${color.charAt(0)}t`; t.id = `t-${color}-${i}`;
-                    t.onclick = () => tryMove(color, i);
+                    t.onclick = () => moveLogic(color, i);
                     slot.appendChild(t); base.appendChild(slot);
                 }
             });
@@ -135,65 +127,56 @@
 
         function roll() {
             if (canMove) return;
-            diceNum = Math.floor(Math.random()*6)+1;
-            document.getElementById('dice').innerHTML = ["","⚀","⚁","⚂","⚃","⚄","⚅"][diceNum];
-            document.getElementById('msg').innerHTML = "नंबर आया: " + diceNum;
+            diceVal = Math.floor(Math.random()*6)+1;
+            document.getElementById('dice').innerHTML = ["","⚀","⚁","⚂","⚃","⚄","⚅"][diceVal];
+            document.getElementById('msg').innerHTML = turn.toUpperCase() + " का नंबर: " + diceVal;
             
-            // नियम: अगर कोई गोटी बाहर नहीं है और ६ नहीं आया, तो बारी बदलें
             let anyOut = tokenPos[turn].some(p => p !== -1);
-            if (!anyOut && diceNum !== 6) {
-                setTimeout(nextTurn, 1000);
-            } else {
-                canMove = true;
-                document.querySelectorAll(`.${turn.charAt(0)}t`).forEach(el => el.classList.add('glow'));
-            }
+            if (!anyOut && diceVal !== 6) { setTimeout(nextTurn, 800); }
+            else { canMove = true; document.querySelectorAll(`.${turn.charAt(0)}t`).forEach(el => el.classList.add('active-token')); }
             if(navigator.vibrate) navigator.vibrate(50);
         }
 
-        async function tryMove(color, idx) {
+        async function moveLogic(color, idx) {
             if (!canMove || color !== turn) return;
             const token = document.getElementById(`t-${color}-${idx}`);
             
-            // घर से बाहर निकलना (नियम ६)
+            // ६ आने पर बाहर
             if (tokenPos[color][idx] === -1) {
-                if (diceNum === 6) {
-                    tokenPos[color][idx] = 0;
-                    document.getElementById(`c-${redPath[0]}`).appendChild(token);
-                    endMove();
+                if (diceVal === 6) {
+                    tokenPos[color][idx] = 0; // शुरुआती बिंदु (9-2 for Blue)
+                    document.getElementById(`c-${masterPath[0]}`).appendChild(token);
+                    finishTurn();
                 }
             } else {
-                // रास्ते पर जम्प करना
+                // जम्प एनीमेशन लॉजिक
                 canMove = false;
-                document.querySelectorAll('.token').forEach(el => el.classList.remove('glow'));
-                for(let i=0; i<diceNum; i++) {
+                document.querySelectorAll('.token').forEach(el => el.classList.remove('active-token'));
+                for(let i=0; i<diceVal; i++) {
                     tokenPos[color][idx]++;
-                    if (tokenPos[color][idx] < redPath.length) {
-                        const nextCell = document.getElementById(`c-${redPath[tokenPos[color][idx]]}`);
-                        token.classList.add('jumping');
-                        nextCell.appendChild(token);
-                        await new Promise(r => setTimeout(r, 200)); // जम्प की रफ़्तार
-                        token.classList.remove('jumping');
+                    if (tokenPos[color][idx] < masterPath.length) {
+                        const target = document.getElementById(`c-${masterPath[tokenPos[color][idx]]}`);
+                        target.appendChild(token);
+                        await new Promise(r => setTimeout(r, 200));
                     }
                 }
-                endMove();
+                finishTurn();
             }
         }
 
-        function endMove() {
+        function finishTurn() {
             canMove = false;
-            document.querySelectorAll('.token').forEach(el => el.classList.remove('glow'));
-            if (diceNum !== 6) nextTurn();
-            else document.getElementById('msg').innerHTML = "एक और मौका!";
+            document.querySelectorAll('.token').forEach(el => el.classList.remove('active-token'));
+            if (diceVal !== 6) nextTurn();
+            else document.getElementById('msg').innerHTML = "एक और बार!";
         }
 
         function nextTurn() {
-            const order = ['red', 'green', 'blue', 'yellow'];
-            document.getElementById(`p-${turn}`).classList.remove('active-p');
+            const order = ['blue', 'red', 'green', 'yellow'];
+            document.getElementById(`p-${turn}-ui`).classList.remove('active-p');
             turn = order[(order.indexOf(turn) + 1) % 4];
-            document.getElementById(`p-${turn}`).classList.add('active-p');
+            document.getElementById(`p-${turn}-ui`).classList.add('active-p');
             document.getElementById('msg').innerHTML = turn.toUpperCase() + " की बारी...";
-            canMove = false;
-            // अगर कंप्यूटर की बारी है, तो ऑटो-रोल कर सकते हैं (बाद में जोड़ेंगे)
         }
 
         window.onload = build;
