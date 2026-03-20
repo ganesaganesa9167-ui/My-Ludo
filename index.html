@@ -3,54 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Ludo Pro v33 - Final Fix</title>
+    <title>Ludo Master v34 - The Final Fortress</title>
     <style>
         :root { --r:#ff3e3e; --g:#2ecc71; --b:#3498db; --y:#f1c40f; --gold:#ffd700; --bg:#1a142e; }
-        * { margin:0; padding:0; box-sizing:border-box; font-family: sans-serif; }
-        body { background: var(--bg); color:white; display:flex; flex-direction:column; align-items:center; height:100vh; overflow:hidden; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color:white; display:flex; flex-direction:column; align-items:center; height:100vh; overflow:hidden; justify-content:space-between; }
 
-        /* --- यूआई बार (खिलाड़ी बॉक्स) --- */
-        .ui-bar { width:100%; display:flex; justify-content:space-between; padding:10px 15px; }
+        /* प्लेयर प्रोफाइल बॉक्स - जैसा आपकी फोटो में है */
+        .ui-bar { width:100%; display:flex; justify-content:space-between; padding:8px 15px; }
         .p-box { background:rgba(0,0,0,0.5); border:2px solid #555; border-radius:8px; display:flex; align-items:center; padding:5px 8px; gap:8px; min-width:115px; }
-        .active-p { border-color:var(--gold); box-shadow: 0 0 15px var(--gold); }
+        .active-p { border-color:var(--gold); box-shadow: 0 0 15px var(--gold); background: rgba(255,215,0,0.1); }
         .av { width:35px; height:35px; background:#fff; border-radius:5px; display:flex; align-items:center; justify-content:center; font-size:22px; }
 
-        /* --- प्रो-बोर्ड ढांचा --- */
+        /* 15x15 महा-ग्रिड */
         .board { 
             display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr);
             width:96vw; height:96vw; max-width:400px; max-height:400px;
-            background:#fff; border:8px solid #333; box-shadow:0 10px 40px #000; margin: 10px 0;
+            background:#fff; border:8px solid #333; box-shadow:0 10px 40px #000; margin: 5px 0;
         }
         .c { border:0.1px solid #ddd; display:flex; align-items:center; justify-content:center; position:relative; z-index:1; }
 
-        .base { grid-column: span 6; grid-row: span 6; display:grid; grid-template-columns:repeat(2,1fr); padding:10%; gap:10px; border:1.5px solid #000; z-index:10; }
+        /* शाही घर (Bases) */
+        .base { grid-column: span 6; grid-row: span 6; display:grid; grid-template-columns:repeat(2,1fr); padding:10%; gap:12px; border:1.5px solid #000; z-index:10; }
         .b-blue { grid-area:1/1/7/7; background:var(--b); }
         .b-yellow { grid-area:1/10/7/16; background:var(--y); }
         .b-red { grid-area:10/1/16/7; background:var(--r); } /* आप (लाल) */
         .b-green { grid-area:10/10/16/16; background:var(--g); }
 
         .slot { background:rgba(0,0,0,0.2); border-radius:50%; width:100%; height:100%; border:2px solid #fff; display:flex; align-items:center; justify-content:center; }
-        .token { width:80%; height:80%; border-radius:50%; border:2px solid #fff; box-shadow:0 4px 8px #000; cursor:pointer; z-index:100; transition: transform 0.2s; }
+        .token { width:80%; height:80%; border-radius:50%; border:2px solid #fff; box-shadow:0 4px 8px #000; cursor:pointer; z-index:100; }
         .rt { background:radial-gradient(circle, #ff6b6b, #800); }
         .bt { background:radial-gradient(circle, #4dabf7, #00008b); }
         .yt { background:radial-gradient(circle, #fcc419, #997300); }
         .gt { background:radial-gradient(circle, #51cf66, #006400); }
 
+        /* जम्प एनीमेशन और चमक */
+        .active-token { animation: glow 0.7s infinite alternate; filter: brightness(1.2); }
+        @keyframes glow { from { transform: scale(1); box-shadow: 0 0 5px gold; } to { transform: scale(1.15); box-shadow: 0 0 20px gold; } }
+        .jumping { transform: scale(1.4) translateY(-10px); z-index: 200 !important; }
+
         .center { grid-area:7/7/10/10; background:conic-gradient(from 45deg, var(--y) 0deg 90deg, var(--g) 90deg 180deg, var(--r) 180deg 270deg, var(--b) 270deg 360deg); border:1px solid #000; z-index:15; }
 
-        /* रास्तों के रंग */
+        /* रास्तों के सटीक रंग */
         .p-red { background:var(--r)!important; } .p-green { background:var(--g)!important; }
         .p-blue { background:var(--b)!important; } .p-yellow { background:var(--y)!important; }
         .star { font-size:1.3rem; font-weight:bold; }
 
-        /* गोटियों की 'हिलती' हुई चमक */
-        .glow { animation: pulse 0.6s infinite alternate; filter: brightness(1.3); }
-        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.15); } }
-
-        /* --- पासा कंट्रोल (पासा यहाँ साफ़ दिखेगा) --- */
+        /* पासा कंट्रोल - जो अब गायब नहीं होगा */
         .footer { width:100%; display:flex; flex-direction:column; align-items:center; padding:10px; background:#120d24; border-top:2px solid var(--gold); }
-        .dice { width:75px; height:75px; background:#fff; border-radius:15px; color:#000; font-size:48px; display:flex; align-items:center; justify-content:center; box-shadow: 0 8px 0 #94a3b8; cursor:pointer; margin-bottom: 5px; }
-        #msg { color:var(--gold); font-weight:bold; font-size:1rem; text-align:center; }
+        .dice { width:70px; height:70px; background:#fff; border-radius:12px; color:#000; font-size:45px; display:flex; align-items:center; justify-content:center; box-shadow: 0 6px 0 #bdc3c7; cursor:pointer; }
     </style>
 </head>
 <body>
@@ -69,51 +70,47 @@
     </div>
 
     <div class="ui-bar">
-        <div class="p-box active-p" id="u-red" style="border-color:var(--r)"><div class="av">👨</div><div style="font-size:10px;">खिलाड़ी (आप)<br>⚔️ 0</div></div>
+        <div class="p-box active-p" id="u-red" style="border-color:var(--r)"><div class="av">👨</div><div style="font-size:10px;">खिलाड़ी (लाल)<br>⚔️ 0</div></div>
         <div class="p-box" id="u-green" style="border-color:var(--g)"><div class="av">🤖</div><div style="font-size:10px;">कंप्यूटर<br>⚔️ 0</div></div>
     </div>
 
     <div class="footer">
+        <div id="msg" style="color:var(--gold); font-weight:bold; margin-bottom:5px;">पासा छुएं</div>
         <div class="dice" id="dice" onclick="roll()">🎲</div>
-        <p id="msg">पासा फेंकें</p>
     </div>
 
     <script>
         let diceVal = 0, turn = 'red', canMove = false;
-        let tokenPositions = { red:[-1,-1,-1,-1] }; // अभी के लिए सिर्फ खिलाडी
+        let positions = { red:[-1,-1,-1,-1], blue:[-1,-1,-1,-1], yellow:[-1,-1,-1,-1], green:[-1,-1,-1,-1] };
 
-        // लाल खिलाड़ी का पूर्ण रास्ता (52 डब्बे)
+        // लाल खिलाड़ी का पक्का रास्ता
         const redPath = ["14-7","13-7","12-7","11-7","10-7","9-6","9-5","9-4","9-3","9-2","9-1","8-1","7-1","7-2","7-3","7-4","7-5","7-6","6-7","5-7","4-7","3-7","2-7","1-7","1-8","1-9","2-9","3-9","4-9","5-9","6-9","7-10","7-11","7-12","7-13","7-14","7-15","8-15","9-15","9-14","9-13","9-12","9-11","9-10","10-9","11-9","12-9","13-9","14-9","15-9","15-8","14-8","13-8","12-8","11-8","10-8"];
 
-        function initBoard() {
+        function build() {
             const b = document.getElementById('board');
-            const colorStars = { "14-7":"var(--r)", "7-2":"var(--b)", "2-9":"var(--y)", "9-14":"var(--g)" };
-            const neutralStars = ["13-9", "9-3", "3-7", "7-13"];
+            const cStars = { "14-7":"var(--r)", "7-2":"var(--b)", "2-9":"var(--y)", "9-14":"var(--g)" };
+            const gStars = ["13-9", "9-3", "3-7", "7-13"];
 
             for(let r=1; r<=15; r++) {
                 for(let c=1; c<=15; c++) {
                     if(!((r<=6 && c<=6) || (r<=6 && c>=10) || (r>=10 && c<=6) || (r>=10 && c>=10) || (r>=7 && r<=9 && c>=7 && c<=9))) {
                         const cell = document.createElement('div');
                         cell.className = 'c'; cell.id = `c-${r}-${c}`; cell.style.gridArea = `${r}/${c}`;
-                        
-                        // रास्तों की सटीक रंगाई
-                        if (c===8 && r>=10 && r<=14) cell.classList.add('p-red'); // खिलाडी का रास्ता (लाल)
+                        if (c===8 && r>=10 && r<=14) cell.classList.add('p-red');
                         if (r===8 && c>=2 && c<=6) cell.classList.add('p-blue');
                         if (c===8 && r>=2 && r<=6) cell.classList.add('p-yellow');
                         if (r===8 && c>=10 && c<=14) cell.classList.add('p-green');
-
-                        const pos = `${r}-${c}`;
-                        if (colorStars[pos]) { cell.innerHTML="★"; cell.style.color=colorStars[pos]; cell.classList.add('star'); }
-                        else if (neutralStars.includes(pos)) { cell.innerHTML="★"; cell.style.color="#ccc"; cell.classList.add('star'); }
-
+                        const p = `${r}-${c}`;
+                        if (cStars[p]) { cell.innerHTML="★"; cell.style.color=cStars[p]; cell.classList.add('star'); }
+                        else if (gStars.includes(p)) { cell.innerHTML="★"; cell.style.color="#ccc"; cell.classList.add('star'); }
                         b.appendChild(cell);
                     }
                 }
             }
-            setupTokens();
+            deploy();
         }
 
-        function setupTokens() {
+        function deploy() {
             ['red', 'blue', 'yellow', 'green'].forEach(color => {
                 const base = document.getElementById(`${color}-base`);
                 base.innerHTML = '';
@@ -121,7 +118,7 @@
                     const slot = document.createElement('div'); slot.className = 'slot';
                     const t = document.createElement('div');
                     t.className = `token ${color.charAt(0)}t`; t.id = `t-${color}-${i}`;
-                    t.onclick = () => tryMove(color, i);
+                    t.onclick = () => moveLogic(color, i);
                     slot.appendChild(t); base.appendChild(slot);
                 }
             });
@@ -132,49 +129,44 @@
             diceVal = Math.floor(Math.random()*6)+1;
             document.getElementById('dice').innerHTML = ["","⚀","⚁","⚂","⚃","⚄","⚅"][diceVal];
             document.getElementById('msg').innerHTML = "नंबर आया: " + diceVal;
-            
-            let anyOut = tokenPositions[turn].some(p => p !== -1);
-            if (!anyOut && diceVal !== 6) {
-                setTimeout(nextTurn, 1000);
-            } else {
-                canMove = true;
-                document.querySelectorAll(`.${turn.charAt(0)}t`).forEach(el => el.classList.add('glow'));
-            }
+            canMove = true;
+            document.querySelectorAll(`.${turn.charAt(0)}t`).forEach(el => el.classList.add('active-token'));
+            if(navigator.vibrate) navigator.vibrate(50);
         }
 
-        async function tryMove(color, idx) {
+        async function moveLogic(color, idx) {
             if (!canMove || color !== turn) return;
             const token = document.getElementById(`t-${color}-${idx}`);
             
-            // ६ आने पर बाहर
-            if (tokenPositions[color][idx] === -1 && diceVal === 6) {
-                tokenPositions[color][idx] = 0;
+            if (positions[color][idx] === -1 && diceVal === 6) {
+                positions[color][idx] = 0;
                 document.getElementById(`c-${redPath[0]}`).appendChild(token);
-                endMove();
-            } else if (tokenPositions[color][idx] !== -1) {
-                // जम्प एनीमेशन
+                end();
+            } else if (positions[color][idx] !== -1) {
                 canMove = false;
-                document.querySelectorAll('.token').forEach(el => el.classList.remove('glow'));
+                document.querySelectorAll('.token').forEach(el => el.classList.remove('active-token'));
                 for(let i=0; i<diceVal; i++) {
-                    tokenPositions[color][idx]++;
-                    if (tokenPositions[color][idx] < redPath.length) {
-                        const target = document.getElementById(`c-${redPath[tokenPositions[color][idx]]}`);
+                    positions[color][idx]++;
+                    if (positions[color][idx] < redPath.length) {
+                        const target = document.getElementById(`c-${redPath[positions[color][idx]]}`);
+                        token.classList.add('jumping');
                         target.appendChild(token);
-                        await new Promise(r => setTimeout(r, 200));
+                        await new Promise(r => setTimeout(r, 250));
+                        token.classList.remove('jumping');
                     }
                 }
-                endMove();
+                end();
             }
         }
 
-        function endMove() {
+        function end() {
             canMove = false;
-            document.querySelectorAll('.token').forEach(el => el.classList.remove('glow'));
-            if (diceVal !== 6) nextTurn();
-            else document.getElementById('msg').innerHTML = "शानदार! एक और बार!";
+            document.querySelectorAll('.token').forEach(el => el.classList.remove('active-token'));
+            if (diceVal !== 6) next();
+            else document.getElementById('msg').innerHTML = "एक और बार!";
         }
 
-        function nextTurn() {
+        function next() {
             const order = ['red', 'green', 'yellow', 'blue'];
             document.getElementById(`u-${turn}`).classList.remove('active-p');
             turn = order[(order.indexOf(turn) + 1) % 4];
@@ -183,7 +175,7 @@
             canMove = false;
         }
 
-        window.onload = initBoard;
+        window.onload = build;
     </script>
 </body>
 </html>
