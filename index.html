@@ -3,74 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Ludo - Royal Architect v11</title>
+    <title>My Ludo - Final Master v12</title>
     <style>
         :root {
-            --red: #ef4444; --green: #22c55e; --blue: #3b82f6; --yellow: #facc15;
-            --bg: #020617; --gold: #fbbf24;
+            --red: #d00000; --green: #008000; --blue: #0000ff; --yellow: #ffcc00;
+            --bg: #0f172a; --gold: #ffd700;
         }
-        body { background: var(--bg); color: white; font-family: 'Poppins', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
 
-        .ludo-board {
+        /* प्रो-बोर्ड डिजाइन */
+        .board {
             display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr);
-            width: 95vw; height: 95vw; max-width: 420px; max-height: 420px;
-            background: #fff; border: 10px solid #c5a059; border-radius: 12px; box-shadow: 0 0 50px #000; position: relative;
+            width: 95vw; height: 95vw; max-width: 400px; max-height: 400px;
+            background: #fff; border: 8px solid #c5a059; border-radius: 10px; box-shadow: 0 0 50px #000;
+            position: relative;
         }
 
         .cell { border: 0.1px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; position: relative; }
 
-        /* शाही घर (Home Blocks) */
-        .home { grid-column: span 6; grid-row: span 6; border: 2px solid #000; display: grid; grid-template-columns: repeat(2, 1fr); padding: 12%; gap: 15px; }
+        /* 4 मुख्य घर */
+        .home { grid-column: span 6; grid-row: span 6; display: grid; grid-template-columns: repeat(2, 1fr); padding: 12%; gap: 10px; border: 1px solid #000; }
         .red-home { grid-area: 1/1/7/7; background: var(--red); }
         .green-home { grid-area: 1/10/7/16; background: var(--green); }
         .blue-home { grid-area: 10/1/16/7; background: var(--blue); }
         .yellow-home { grid-area: 10/10/16/16; background: var(--yellow); }
         
-        .slot { background: #fff; border-radius: 50%; border: 2px solid rgba(0,0,0,0.1); position: relative; display: flex; align-items: center; justify-content: center; }
+        .slot { background: #fff; border-radius: 50%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border: 2px solid #333; }
 
-        /* --- गोटियाँ (Tokens) --- */
-        .token { 
-            width: 80%; height: 80%; border-radius: 50%; border: 2px solid white; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5); z-index: 10;
-        }
-        .red-t { background: radial-gradient(circle at 30% 30%, #ff8888, var(--red)); }
-        .green-t { background: radial-gradient(circle at 30% 30%, #88ff88, var(--green)); }
-        .blue-t { background: radial-gradient(circle at 30% 30%, #8888ff, var(--blue)); }
-        .yellow-t { background: radial-gradient(circle at 30% 30%, #ffff88, var(--yellow)); }
+        /* गोटियाँ (Tokens) - एकदम साफ़ और बड़ी */
+        .token { width: 80%; height: 80%; border-radius: 50%; border: 2px solid white; box-shadow: 0 4px 8px #000; }
+        .red-t { background: radial-gradient(circle, #ff5555, #800000); }
+        .green-t { background: radial-gradient(circle, #55ff55, #004d00); }
+        .blue-t { background: radial-gradient(circle, #5555ff, #000080); }
+        .yellow-t { background: radial-gradient(circle, #ffff55, #806600); }
 
-        .center-home { grid-area: 7/7/10/10; border: 2px solid #000; background: conic-gradient(from 45deg, var(--yellow) 0deg 90deg, var(--blue) 90deg 180deg, var(--red) 180deg 270deg, var(--green) 270deg 360deg); }
+        /* केंद्र का त्रिकोण (Center Triangle) */
+        .center { grid-area: 7/7/10/10; border: 2px solid #000; background: conic-gradient(from 45deg, var(--yellow) 0deg 90deg, var(--blue) 90deg 180deg, var(--red) 180deg 270deg, var(--green) 270deg 360deg); }
 
+        /* रास्तों के रंग */
         .p-red { background: var(--red); } .p-green { background: var(--green); }
         .p-blue { background: var(--blue); } .p-yellow { background: var(--yellow); }
-        .star-cell { background: #cbd5e1; font-weight: bold; color: #1e293b; font-size: 14px; }
+        
+        /* गणितीय 8 सितारे */
+        .star { background: #cbd5e1; font-weight: bold; color: #000; font-size: 14px; }
 
-        /* --- पासा (Improved Dice) --- */
+        /* पासा (Dice) - हाई कंट्रास्ट ब्लैक अंक */
         #dice-btn { 
-            width: 85px; height: 85px; background: white; border-radius: 15px; margin-top: 20px;
+            width: 80px; height: 80px; background: #fff; border-radius: 12px; margin-top: 20px;
             display: flex; align-items: center; justify-content: center; 
-            font-size: 50px; color: #000; font-weight: bold; /* काला रंग ताकि साफ़ दिखे */
-            box-shadow: 0 8px 0 #94a3b8, 0 15px 25px rgba(0,0,0,0.5); cursor: pointer;
+            font-size: 50px; color: #000; font-weight: 900; 
+            box-shadow: 0 8px 0 #94a3b8, 0 15px 20px rgba(0,0,0,0.5); cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-    <h1 style="color:var(--gold); margin-bottom: 10px;">👑 MY LUDO - PRO EDITION 👑</h1>
+    <h1 id="ver-title" style="color:var(--gold); margin: 10px; font-size: 1.2rem;">👑 MY LUDO - MASTER v12 👑</h1>
     
-    <div class="ludo-board" id="board">
+    <div class="board" id="board">
         <div class="home red-home"><div class="slot"><div class="token red-t"></div></div><div class="slot"><div class="token red-t"></div></div><div class="slot"><div class="token red-t"></div></div><div class="slot"><div class="token red-t"></div></div></div>
         <div class="home green-home"><div class="slot"><div class="token green-t"></div></div><div class="slot"><div class="token green-t"></div></div><div class="slot"><div class="token green-t"></div></div><div class="slot"><div class="token green-t"></div></div></div>
         <div class="home blue-home"><div class="slot"><div class="token blue-t"></div></div><div class="slot"><div class="token blue-t"></div></div><div class="slot"><div class="token blue-t"></div></div><div class="slot"><div class="token blue-t"></div></div></div>
         <div class="home yellow-home"><div class="slot"><div class="token yellow-t"></div></div><div class="slot"><div class="token yellow-t"></div></div><div class="slot"><div class="token yellow-t"></div></div><div class="slot"><div class="token yellow-t"></div></div></div>
-        <div class="center-home"></div>
+        <div class="center"></div>
     </div>
     
     <div id="dice-btn" onclick="roll()">🎲</div>
     <p id="msg" style="margin-top:10px; font-weight:bold; color:var(--gold)">पासा फेंकें</p>
 
     <script>
-        function build() {
+        function render() {
             const b = document.getElementById('board');
+            const stars = [{r:7,c:2},{r:9,c:3},{r:2,c:9},{r:3,c:7},{r:9,c:14},{r:7,c:13},{r:14,c:7},{r:13,c:9}];
+            
             for(let i=0; i<225; i++) {
                 let r=Math.floor(i/15)+1, c=(i%15)+1;
                 if(!((r<=6 && c<=6) || (r<=6 && c>=10) || (r>=10 && c<=6) || (r>=10 && c>=10) || (r>=7 && r<=9 && c>=7 && c<=9))) {
@@ -78,28 +83,27 @@
                     cell.className = 'cell';
                     cell.style.gridArea = `${r} / ${c}`;
 
-                    // सटीक रास्ते
+                    // सटीक रास्तों के रंग
                     if (r === 8 && c >= 2 && c <= 6) cell.classList.add('p-red');
                     if (c === 8 && r >= 2 && r <= 6) cell.classList.add('p-green');
                     if (c === 8 && r >= 10 && r <= 14) cell.classList.add('p-blue');
                     if (r === 8 && c >= 10 && c <= 14) cell.classList.add('p-yellow');
 
-                    // 8 गणितीय सितारे
-                    const stars = [{r:7,c:2},{r:9,c:3},{r:2,c:9},{r:3,c:7},{r:9,c:14},{r:7,c:13},{r:14,c:7},{r:13,c:9}];
-                    if (stars.some(s => s.r === r && s.c === c)) { cell.innerHTML = "⭐"; cell.classList.add('star-cell'); }
+                    if (stars.some(s => s.r === r && s.c === c)) { cell.innerHTML = "⭐"; cell.classList.add('star'); }
                     b.appendChild(cell);
                 }
             }
         }
+
         function roll() {
             const v = Math.floor(Math.random()*6)+1;
-            const diceIcons = ["","⚀","⚁","⚂","⚃","⚄","⚅"];
-            // अंक अब एकदम काले और साफ़ दिखेंगे
-            document.getElementById('dice-btn').innerHTML = diceIcons[v];
+            const dice = ["","⚀","⚁","⚂","⚃","⚄","⚅"];
+            const btn = document.getElementById('dice-btn');
+            btn.innerHTML = dice[v]; // अब अंक काले रंग में साफ़ दिखेंगे
             document.getElementById('msg').innerHTML = "नंबर आया: " + v;
             if(navigator.vibrate) navigator.vibrate(60);
         }
-        window.onload = build;
+        window.onload = render;
     </script>
 </body>
 </html>
