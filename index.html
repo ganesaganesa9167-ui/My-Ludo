@@ -3,124 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ludo Game UI</title>
+    <title>Shiv Shakti Ludo UI</title>
     <style>
-        /* CSS: पूरा डिजाइन यहाँ है */
+        /* CSS: डिजाइन */
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            background-color: #1a1a2e; /* गहरा नेवी ब्लू बैकग्राउंड */
+            background-color: #1a1a2e; /* गहरा नेवी ब्लू */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: sans-serif;
             color: white;
         }
 
-        /* टॉप प्लेयर स्टेटस बॉक्स */
+        /* टॉप स्टेटस बार */
         .status-container {
             display: flex;
             justify-content: space-between;
-            width: 360px;
-            margin-bottom: 25px;
+            width: 350px;
+            margin-bottom: 20px;
         }
 
-        .player-box {
+        .player-status {
             border: 2px solid;
-            padding: 10px;
+            padding: 8px 15px;
             border-radius: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            width: 110px;
+            background: rgba(0, 0, 0, 0.2);
             text-align: center;
-            font-size: 13px;
+            font-size: 14px;
         }
-        .p-blue { border-color: #3498db; }
-        .p-yellow { border-color: #f1c40f; }
+        .blue-status { border-color: #3498db; color: #fff; }
+        .yellow-status { border-color: #f1c40f; color: #fff; }
 
         /* मुख्य लूडो बोर्ड */
         .ludo-board {
             display: grid;
             grid-template-columns: repeat(15, 1fr);
             grid-template-rows: repeat(15, 1fr);
-            width: 360px;
-            height: 360px;
+            width: 350px;
+            height: 350px;
             background-color: white;
-            border: 10px solid #333; /* गहरा बाहरी बॉर्डर */
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 8px solid #333;
+            box-shadow: 0 0 25px rgba(0,0,0,0.5);
         }
 
-        /* होम एरिया (Homes) */
-        .home { grid-column: span 6; grid-row: span 6; display: grid; grid-template-columns: 1fr 1fr; padding: 12px; }
+        /* होम एरिया */
+        .home { grid-column: span 6; grid-row: span 6; display: grid; grid-template-columns: 1fr 1fr; padding: 15px; }
         
         .red-home { background-color: #ff3e5e; }
         .yellow-home { background-color: #ffcc00; }
         .blue-home { background-color: #2e86c1; }
         .green-home { background-color: #27ae60; }
 
-        /* गोटियों के लिए सफेद स्लॉट */
+        /* स्लॉट्स (सफेद गोले) */
         .slot {
-            background: radial-gradient(circle, #ffffff 40%, #dcdcdc 100%);
+            background: radial-gradient(circle, #ffffff, #e0e0e0);
             border-radius: 50%;
             margin: 6px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        /* सेंटर स्क्वायर (4 रंगों वाला) */
-        .center-grid {
+        /* सेंटर 2x2 कलर्स */
+        .center-box {
             grid-column: 7 / 10;
             grid-row: 7 / 10;
             display: grid;
             grid-template-columns: 1fr 1fr;
         }
-        /* तस्वीर के अनुसार रंगों का सटीक क्रम */
-        .c-green { background-color: #27ae60; } /* टॉप-लेफ्ट */
-        .c-red { background-color: #ff3e5e; }   /* टॉप-राइट */
-        .c-yellow { background-color: #ffcc00; }/* बॉटम-लेफ्ट */
-        .c-blue { background-color: #2e86c1; }  /* बॉटम-राइट */
+        .c-green { background-color: #27ae60; }
+        .c-red { background-color: #ff3e5e; }
+        .c-yellow { background-color: #ffcc00; }
+        .c-blue { background-color: #2e86c1; }
+
+        /* सफेद रास्ते (Pathways) */
+        .path { background-color: white; }
 
         /* पासा (Dice) सेक्शन */
-        .dice-section {
+        .dice-area {
             margin-top: 40px;
             text-align: center;
         }
 
-        .dice-wrapper {
+        .dice-box {
             background: white;
             color: black;
-            width: 85px;
-            height: 85px;
+            width: 80px;
+            height: 80px;
             border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 50px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+            font-size: 45px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             cursor: pointer;
             margin: 10px auto;
-            transition: 0.2s;
         }
 
-        .dice-wrapper:active { transform: scale(0.9); }
-
-        .result-text {
+        .result-label {
             font-size: 20px;
-            color: #ffcc00; /* पीला टेक्स्ट जैसा तस्वीर में है */
+            color: #ffcc00; /* पीला टेक्स्ट */
             font-weight: bold;
-            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
     <div class="status-container">
-        <div class="player-box p-blue">
-            🤖 कंप्यूटर <br> ⚔️ 0
-        </div>
-        <div class="player-box p-yellow">
-            🤖 कंप्यूटर <br> ⚔️ 0
-        </div>
+        <div class="player-status blue-status">🤖 कंप्यूटर <br> ⚔️ 0</div>
+        <div class="player-status yellow-status">🤖 कंप्यूटर <br> ⚔️ 0</div>
     </div>
 
     <div class="ludo-board">
@@ -128,46 +121,45 @@
             <div class="slot"></div><div class="slot"></div>
             <div class="slot"></div><div class="slot"></div>
         </div>
-        
-        <div style="grid-column: 7/10; grid-row: 1/7; background: white;"></div>
+
+        <div class="path" style="grid-column: 7/10; grid-row: 1/7;"></div>
 
         <div class="home yellow-home">
             <div class="slot"></div><div class="slot"></div>
             <div class="slot"></div><div class="slot"></div>
         </div>
 
-        <div style="grid-column: 1/7; grid-row: 7/10; background: white;"></div>
+        <div class="path" style="grid-column: 1/7; grid-row: 7/10;"></div>
 
-        <div class="center-grid">
+        <div class="center-box">
             <div class="c-green"></div>
             <div class="c-red"></div>
             <div class="c-yellow"></div>
             <div class="c-blue"></div>
         </div>
 
-        <div style="grid-column: 10/16; grid-row: 7/10; background: white;"></div>
+        <div class="path" style="grid-column: 10/16; grid-row: 7/10;"></div>
 
         <div class="home blue-home"></div>
 
-        <div style="grid-column: 7/10; grid-row: 10/16; background: white;"></div>
+        <div class="path" style="grid-column: 7/10; grid-row: 10/16;"></div>
 
         <div class="home green-home"></div>
     </div>
 
-    <div class="dice-section">
-        <div class="dice-wrapper" id="dice" onclick="rollDice()">⚁</div>
-        <div class="result-text">आया: <span id="val">2</span></div>
+    <div class="dice-area">
+        <div class="dice-box" id="dice" onclick="roll()">⚃</div>
+        <div class="result-label">आया: <span id="num">4</span></div>
     </div>
 
     <script>
-        // JavaScript: पासा फेंकने का लॉजिक
-        function rollDice() {
-            const diceIcons = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-            const random = Math.floor(Math.random() * 6) + 1;
-            
-            document.getElementById('dice').innerText = diceIcons[random - 1];
-            document.getElementById('val').innerText = random;
+        function roll() {
+            const diceArr = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+            const n = Math.floor(Math.random() * 6) + 1;
+            document.getElementById('dice').innerText = diceArr[n-1];
+            document.getElementById('num').innerText = n;
         }
     </script>
+
 </body>
 </html>
