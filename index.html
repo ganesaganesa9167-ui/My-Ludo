@@ -2,63 +2,96 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Ludo Royal v16</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>My Ludo - Royal Engine v17</title>
     <style>
-        :root { --r: #d00000; --g: #008000; --b: #0000ff; --y: #ffcc00; }
-        body { background: #020617; color: white; font-family: sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-        
-        /* मज़बूत ढांचा */
+        :root { --r: #e11d48; --g: #16a34a; --b: #2563eb; --y: #ca8a04; --gold: #f59e0b; }
+        body { background: #020617; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+
+        /* प्रो-बोर्ड: 15x15 का सख्त गणितीय ढांचा */
         .board {
             display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr);
-            width: 95vw; height: 95vw; max-width: 400px; max-height: 400px;
-            background: #fff; border: 10px solid #c5a059; border-radius: 12px; box-shadow: 0 0 50px #000;
+            width: 95vw; height: 95vw; max-width: 420px; max-height: 420px;
+            background: #fff; border: 10px solid #c5a059; border-radius: 8px; box-shadow: 0 0 50px #000;
         }
 
-        .cell { border: 0.1px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; }
+        .cell { border: 0.1px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; position: relative; font-size: 14px; }
 
-        /* कोनों के पक्के घर */
-        .home { grid-column: span 6; grid-row: span 6; display: grid; grid-template-columns: repeat(2, 1fr); padding: 12%; gap: 10px; border: 1px solid #000; }
+        /* बड़े घर (Homes) */
+        .home { grid-column: span 6; grid-row: span 6; border: 1px solid #000; display: grid; grid-template-columns: repeat(2, 1fr); padding: 12%; gap: 15px; }
         .red { grid-area: 1/1/7/7; background: var(--r); }
         .green { grid-area: 1/10/7/16; background: var(--g); }
         .blue { grid-area: 10/1/16/7; background: var(--b); }
         .yellow { grid-area: 10/10/16/16; background: var(--y); }
         
-        .slot { background: #fff; border-radius: 50%; width: 100%; height: 100%; border: 1px solid #333; display: flex; align-items: center; justify-content: center; }
-        .token { width: 80%; height: 80%; border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 5px #000; }
-        .rt { background: radial-gradient(circle, #ff5555, #800000); }
-        .gt { background: radial-gradient(circle, #55ff55, #004d00); }
-        .bt { background: radial-gradient(circle, #5555ff, #000080); }
-        .yt { background: radial-gradient(circle, #ffff55, #806600); }
+        .slot { background: #fff; border-radius: 50%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border: 2px solid #333; }
+        .token { width: 80%; height: 80%; border-radius: 50%; border: 2px solid white; box-shadow: 0 4px 8px #000; }
+        .rt { background: radial-gradient(circle, #ff4444, #7f0000); }
+        .gt { background: radial-gradient(circle, #44ff44, #004d00); }
+        .bt { background: radial-gradient(circle, #4444ff, #000080); }
+        .yt { background: radial-gradient(circle, #ffff44, #806600); }
 
+        /* सेंटर (Home Point) */
         .center { grid-area: 7/7/10/10; border: 2px solid #000; background: conic-gradient(from 45deg, var(--y) 0deg 90deg, var(--b) 90deg 180deg, var(--r) 180deg 270deg, var(--g) 270deg 360deg); }
 
-        /* पासा */
-        #dice { width: 80px; height: 80px; background: #fff; border-radius: 12px; margin-top: 20px; display: flex; align-items: center; justify-content: center; font-size: 50px; color: #000; box-shadow: 0 8px 0 #94a3b8; cursor: pointer; }
+        /* रास्तों के सटीक रंग */
+        .p-r { background: var(--r) !important; } .p-g { background: var(--g) !important; }
+        .p-b { background: var(--b) !important; } .p-y { background: var(--y) !important; }
+        .star { background: #cbd5e1; font-weight: bold; color: #000; }
+
+        #dice { width: 80px; height: 80px; background: #fff; border-radius: 15px; margin-top: 25px; display: flex; align-items: center; justify-content: center; font-size: 50px; color: #000; font-weight: bold; box-shadow: 0 8px 0 #94a3b8; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <h1 style="color:#ffd700; margin: 10px;">👑 MY LUDO v16 - SUCCESS 👑</h1>
+    <h1 style="color:var(--gold); margin-bottom: 10px; font-size: 1.2rem;">👑 MY LUDO v17 - PERFECT 👑</h1>
     
-    <div class="board">
+    <div class="board" id="main-board">
         <div class="home red"><div class="slot"><div class="token rt"></div></div><div class="slot"><div class="token rt"></div></div><div class="slot"><div class="token rt"></div></div><div class="slot"><div class="token rt"></div></div></div>
-        <div class="home green"><div class="slot"><div class="token gt"></div></div><div class="slot"><div class="token gt"></div></div><div class="slot"><div class="token gt"></div></div><div class="slot"><div class="token gt"></div></div></div>
+        <div class="home green"><div class="slot"><div class="token gt"></div></div><div class="slot"><div class="token gt"></div></div><div class="slot"><div class="token gt)</div></div><div class="slot"><div class="token gt"></div></div></div>
         <div class="home blue"><div class="slot"><div class="token bt"></div></div><div class="slot"><div class="token bt"></div></div><div class="slot"><div class="token bt"></div></div><div class="slot"><div class="token bt"></div></div></div>
         <div class="home yellow"><div class="slot"><div class="token yt"></div></div><div class="slot"><div class="token yt"></div></div><div class="slot"><div class="token yt"></div></div><div class="slot"><div class="token yt"></div></div></div>
-        
         <div class="center"></div>
-
-        <div style="grid-area: 8/1; background: #fff;" class="cell"></div>
-        <div style="grid-area: 8/2; background: #d00000;" class="cell"></div>
-        <div style="grid-area: 8/3; background: #d00000;" class="cell"></div>
-        <div style="grid-area: 8/4; background: #d00000;" class="cell"></div>
-        <div style="grid-area: 8/5; background: #d00000;" class="cell"></div>
-        <div style="grid-area: 8/6; background: #d00000;" class="cell"></div>
-        </div>
+    </div>
     
-    <div id="dice" onclick="this.innerHTML=['⚀','⚁','⚂','⚃','⚄','⚅'][Math.floor(Math.random()*6)]">🎲</div>
-    <p>पासा छुएं</p>
+    <div id="dice" onclick="roll()">🎲</div>
+    <p id="msg" style="margin-top:10px; font-weight:bold; color:var(--gold)">पासा छुएं</p>
 
+    <script>
+        function buildGrid() {
+            const b = document.getElementById('main-board');
+            // गणितीय रूप से 8 सही सितारे
+            const stars = [{r:7,c:2},{r:9,c:3},{r:2,c:9},{r:3,c:7},{r:9,c:14},{r:7,c:13},{r:14,c:7},{r:13,c:9}];
+            
+            for(let i=0; i<225; i++) {
+                let r = Math.floor(i/15)+1, c = (i%15)+1;
+                // अगर सेल होम एरिया या सेंटर में नहीं है, तभी बनाएँ
+                if(!((r<=6 && c<=6) || (r<=6 && c>=10) || (r>=10 && c<=6) || (r>=10 && c>=10) || (r>=7 && r<=9 && c>=7 && c<=9))) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.style.gridArea = `${r}/${c}`;
+                    
+                    // शाही रास्ते की सटीक मैपिंग
+                    if (r===8 && c>=2 && c<=6) cell.classList.add('p-r');
+                    if (c===8 && r>=2 && r<=6) cell.classList.add('p-g');
+                    if (c===8 && r>=10 && r<=14) cell.classList.add('p-b');
+                    if (r===8 && c>=10 && c<=14) cell.classList.add('p-y');
+                    
+                    if (stars.some(s=>s.r===r && s.c===c)) { cell.innerHTML="⭐"; cell.classList.add('star'); }
+                    b.appendChild(cell);
+                }
+            }
+        }
+
+        function roll() {
+            const v = Math.floor(Math.random()*6)+1;
+            const d = ["","⚀","⚁","⚂","⚃","⚄","⚅"];
+            document.getElementById('dice').innerHTML = d[v];
+            document.getElementById('msg').innerHTML = "नंबर आया: " + v;
+            if(navigator.vibrate) navigator.vibrate(60);
+        }
+
+        window.onload = buildGrid;
+    </script>
 </body>
 </html>
