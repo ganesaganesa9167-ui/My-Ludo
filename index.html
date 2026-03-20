@@ -3,138 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Ludo Royal v20 - Full Logic</title>
+    <title>My Ludo Royal v21 - Precision Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --r: #eb1c24; --g: #27ae60; --b: #2980b9; --y: #f1c40f; 
-            --gold: #d4af37; --bg: #0f172a; 
+        :root {
+            --red: #eb1c24; --green: #27ae60; --blue: #2980b9; --yellow: #f1c40f;
+            --gold: #d4af37; --bg: #020617;
         }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: white; font-family: 'Rajdhani', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
 
-        .board {
+        /* 15x15 मज़बूत ढांचा */
+        .ludo-board {
             display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr);
-            width: 95vw; height: 95vw; max-width: 420px; max-height: 420px;
-            background: #fff; border: 10px solid var(--gold); border-radius: 12px; box-shadow: 0 15px 40px #000;
+            width: 96vw; height: 96vw; max-width: 420px; max-height: 420px;
+            background: #fff; border: 12px solid var(--gold); border-radius: 12px; box-shadow: 0 0 60px #000;
         }
 
-        .cell { border: 0.1px solid rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center; position: relative; }
+        .cell { border: 0.1px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; }
 
-        /* चारों शाही घर */
-        .home { grid-column: span 6; grid-row: span 6; display: grid; grid-template-columns: repeat(2, 1fr); padding: 12%; gap: 12px; border: 1px solid #000; z-index: 5; }
-        .red { grid-area: 1/1/7/7; background: var(--r); }
-        .green { grid-area: 1/10/7/16; background: var(--g); }
-        .blue { grid-area: 10/1/16/7; background: var(--b); }
-        .yellow { grid-area: 10/10/16/16; background: var(--y); }
+        /* ४ बड़े शाही घर (Homes) */
+        .base { grid-column: span 6; grid-row: span 6; display: grid; grid-template-columns: repeat(2, 1fr); padding: 12%; gap: 15px; border: 2px solid #000; z-index: 10; }
+        .red-base { grid-area: 1/1/7/7; background: var(--red); }
+        .green-base { grid-area: 1/10/7/16; background: var(--green); }
+        .blue-base { grid-area: 10/1/16/7; background: var(--blue); }
+        .yellow-base { grid-area: 10/10/16/16; background: var(--yellow); }
 
         .slot { background: #fff; border-radius: 50%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border: 2px solid #333; }
+        .token { width: 85%; height: 85%; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 4px 8px #000; }
+        .rt { background: radial-gradient(circle, #ff5555, #900); }
+        .gt { background: radial-gradient(circle, #55ff55, #004d00); }
+        .bt { background: radial-gradient(circle, #5555ff, #000080); }
+        .yt { background: radial-gradient(circle, #ffff55, #990); }
+
+        /* शाही केंद्र (Conic Finish Area) */
+        .center-finish { grid-area: 7/7/10/10; border: 2px solid #000; background: conic-gradient(from 45deg, var(--yellow) 0deg 90deg, var(--blue) 90deg 180deg, var(--red) 180deg 270deg, var(--green) 270deg 360deg); z-index: 20; }
+
+        /* रास्तों के सटीक रंग (Mathematical Coloring) */
+        .p-red { background: var(--red) !important; } .p-green { background: var(--green) !important; }
+        .p-blue { background: var(--blue) !important; } .p-yellow { background: var(--yellow) !important; }
         
-        /* गोटियाँ (अब चारों रंगों के लिए) */
-        .token { width: 85%; height: 85%; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.5); z-index: 100; cursor: pointer; transition: 0.2s; }
-        .rt { background: radial-gradient(circle at 35% 35%, #ff4d4d, #990000); }
-        .gt { background: radial-gradient(circle at 35% 35%, #4dff4d, #006600); }
-        .bt { background: radial-gradient(circle at 35% 35%, #4d4dff, #000099); }
-        .yt { background: radial-gradient(circle at 35% 35%, #ffff4d, #999900); }
-        
-        .active-glow { animation: pulse 0.8s infinite alternate; transform: scale(1.1); box-shadow: 0 0 15px gold; }
-        @keyframes pulse { from { box-shadow: 0 0 5px gold; } to { box-shadow: 0 0 25px gold; } }
+        /* ८ वैज्ञानिक सितारे (Safe Spots) */
+        .star { background: #cbd5e1 !important; font-weight: bold; color: #000; font-size: 1.2rem; }
 
-        .center { grid-area: 7/7/10/10; border: 2px solid #000; z-index: 10; background: conic-gradient(from 45deg, var(--y) 0deg 90deg, var(--b) 90deg 180deg, var(--r) 180deg 270deg, var(--g) 270deg 360deg); }
-
-        /* रास्तों के पक्के रंग (Mapping Fix) */
-        .p-red { background: var(--r) !important; } .p-green { background: var(--g) !important; }
-        .p-blue { background: var(--b) !important; } .p-yellow { background: var(--y) !important; }
-        .star { background: #e2e8f0; font-weight: bold; color: #1e293b; }
-
-        #dice-btn { width: 85px; height: 85px; background: #fff; border-radius: 18px; margin-top: 20px; display: flex; align-items: center; justify-content: center; font-size: 50px; color: #000; box-shadow: 0 8px 0 #94a3b8; cursor: pointer; }
+        /* पासा (Black-on-White High Contrast) */
+        #dice-btn { width: 85px; height: 85px; background: #fff; border-radius: 18px; margin-top: 20px; display: flex; align-items: center; justify-content: center; font-size: 55px; color: #000; box-shadow: 0 10px 0 #94a3b8; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <h1 style="color:var(--gold); margin-bottom: 10px;">👑 MY LUDO - ROYAL v20 👑</h1>
+    <h1 style="color:var(--gold); margin-bottom: 5px;">👑 MY LUDO - ROYAL v21 👑</h1>
     
-    <div class="board" id="main-board">
-        <div class="home red" id="red-base"></div>
-        <div class="home green" id="green-base"></div>
-        <div class="home blue" id="blue-base"></div>
-        <div class="home yellow" id="yellow-base"></div>
-        <div class="center"></div>
+    <div class="ludo-board" id="board">
+        <div class="base red-base"><div class="slot"><div class="token rt"></div></div><div class="slot"><div class="token rt"></div></div><div class="slot"><div class="token rt"></div></div><div class="slot"><div class="token rt"></div></div></div>
+        <div class="base green-base"><div class="slot"><div class="token gt"></div></div><div class="slot"><div class="token gt"></div></div><div class="slot"><div class="token gt"></div></div><div class="slot"><div class="token gt"></div></div></div>
+        <div class="base blue-base"><div class="slot"><div class="token bt"></div></div><div class="slot"><div class="token bt"></div></div><div class="slot"><div class="token bt"></div></div><div class="slot"><div class="token bt"></div></div></div>
+        <div class="base yellow-base"><div class="slot"><div class="token yt"></div></div><div class="slot"><div class="token yt"></div></div><div class="slot"><div class="token yt"></div></div><div class="slot"><div class="token yt"></div></div></div>
+        <div class="center-finish"></div>
     </div>
-
+    
     <div id="dice-btn" onclick="roll()">🎲</div>
-    <p id="msg" style="margin-top:10px; font-weight:bold; color:var(--gold)">पासा फेंकें</p>
+    <p id="msg" style="margin-top:10px; font-weight:bold; color:var(--gold); font-size: 1.2rem;">पासा फेंकें</p>
 
     <script>
-        let diceVal = 0;
-        let canMove = false;
-        let turn = 'red';
+        function buildDetailedBoard() {
+            const b = document.getElementById('board');
+            // गणितीय रूप से ८ सही सितारे (Safe Spots only on White Cells)
+            const stars = [
+                {r:7, c:2}, {r:9, c:3},   // Red Area Safe
+                {r:2, c:9}, {r:3, c:7},   // Green Area Safe
+                {r:9, c:14}, {r:7, c:13}, // Yellow Area Safe
+                {r:14, c:7}, {r:13, c:9}  // Blue Area Safe
+            ];
 
-        function init() {
-            const b = document.getElementById('main-board');
-            const stars = [{r:7,c:2},{r:9,c:3},{r:2,c:9},{r:3,c:7},{r:9,c:14},{r:7,c:13},{r:14,c:7},{r:13,c:9}];
-            
             for(let i=0; i<225; i++) {
-                let r=Math.floor(i/15)+1, c=(i%15)+1;
+                let r = Math.floor(i/15)+1, c = (i%15)+1;
+                // अगर सेल होम एरिया या सेंटर में नहीं है, तभी बनाएँ
                 if(!((r<=6 && c<=6) || (r<=6 && c>=10) || (r>=10 && c<=6) || (r>=10 && c>=10) || (r>=7 && r<=9 && c>=7 && c<=9))) {
                     const cell = document.createElement('div');
                     cell.className = 'cell';
-                    cell.id = `cell-${r}-${c}`;
                     cell.style.gridArea = `${r}/${c}`;
 
-                    // सटीक रास्ते की कोडिंग
-                    if (r===8 && c>=2 && c<=6) cell.classList.add('p-red');
-                    if (c===8 && r>=2 && r<=6) cell.classList.add('p-green');
-                    if (c===8 && r>=10 && r<=14) cell.classList.add('p-blue');
-                    if (r===8 && c>=10 && c<=14) cell.classList.add('p-yellow');
-                    
-                    if (stars.some(s=>s.r===r && s.c===c)) { cell.innerHTML="⭐"; cell.classList.add('star'); }
+                    // --- केवल बीच वाली लाइन रंगीन (Home Stretch) ---
+                    if (r === 8 && c >= 2 && c <= 6) cell.classList.add('p-red');
+                    if (c === 8 && r >= 2 && r <= 6) cell.classList.add('p-green');
+                    if (c === 8 && r >= 10 && r <= 14) cell.classList.add('p-blue');
+                    if (r === 8 && c >= 10 && c <= 14) cell.classList.add('p-yellow');
+
+                    // --- सुरक्षित सितारों की प्लेसमेंट ---
+                    if (stars.some(s => s.r === r && s.c === c)) {
+                        cell.innerHTML = "⭐";
+                        cell.classList.add('star');
+                    }
                     b.appendChild(cell);
                 }
             }
-            setupTokens();
-        }
-
-        function setupTokens() {
-            const colors = ['red', 'green', 'blue', 'yellow'];
-            colors.forEach(color => {
-                const base = document.getElementById(`${color}-base`);
-                base.innerHTML = '';
-                for(let i=0; i<4; i++) {
-                    const slot = document.createElement('div');
-                    slot.className = 'slot';
-                    const token = document.createElement('div');
-                    token.className = `token ${color.charAt(0)}t`; // rt, gt, bt, yt
-                    token.onclick = () => tryMove(color, token);
-                    slot.appendChild(token);
-                    base.appendChild(slot);
-                }
-            });
         }
 
         function roll() {
-            if (canMove) return;
-            diceVal = Math.floor(Math.random()*6)+1;
-            document.getElementById('dice-btn').innerHTML = ["","⚀","⚁","⚂","⚃","⚄","⚅"][diceVal];
-            document.getElementById('msg').innerHTML = "नंबर आया: " + diceVal;
-            canMove = true;
-            document.querySelectorAll(`.${turn.charAt(0)}t`).forEach(t => t.classList.add('active-glow'));
+            const v = Math.floor(Math.random()*6)+1;
+            const d = ["","⚀","⚁","⚂","⚃","⚄","⚅"];
+            document.getElementById('dice-btn').innerHTML = d[v];
+            document.getElementById('msg').innerHTML = "नंबर आया: " + v;
+            if(navigator.vibrate) navigator.vibrate(60);
         }
 
-        function tryMove(color, el) {
-            if (!canMove || color !== turn) return;
-            
-            if (diceVal === 6 && el.parentElement.classList.contains('slot')) {
-                const starts = { red:'7-2', green:'2-9', blue:'14-7', yellow:'9-14' };
-                document.getElementById(`cell-${starts[color]}`).appendChild(el);
-            }
-            
-            canMove = false;
-            document.querySelectorAll('.token').forEach(t => t.classList.remove('active-glow'));
-            turn = (turn === 'red') ? 'green' : (turn === 'green' ? 'blue' : (turn === 'blue' ? 'yellow' : 'red'));
-            document.getElementById('msg').innerHTML = turn.toUpperCase() + " की बारी";
-        }
-
-        window.onload = init;
+        window.onload = buildDetailedBoard;
     </script>
 </body>
 </html>
