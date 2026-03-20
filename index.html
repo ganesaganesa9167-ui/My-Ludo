@@ -3,160 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Ludo Royal v18 - Detailed Engine</title>
+    <title>My Ludo Royal v19 - Movement Engine</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
-    
     <style>
-        /* --- 1. वैश्विक सेटिंग्स (Global Settings) --- */
-        :root {
-            --red: #eb1c24; --green: #27ae60; --blue: #2980b9; --yellow: #f1c40f;
-            --white: #ffffff; --black: #2c3e50; --gold: #d4af37;
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { 
-            background: #0f172a; color: white; font-family: 'Rajdhani', sans-serif;
-            margin: 0; padding: 0; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; min-height: 100vh;
-            overflow: hidden;
-        }
-
-        /* --- 2. शाही बोर्ड का ढांचा (The Royal Framework) --- */
-        .game-area {
-            display: flex; flex-direction: column; align-items: center; gap: 10px;
-            width: 100%; max-width: 500px;
-        }
+        :root { --r: #eb1c24; --g: #27ae60; --b: #2980b9; --y: #f1c40f; --gold: #d4af37; }
+        body { background: #0f172a; color: white; font-family: 'Rajdhani', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
 
         .ludo-board {
-            display: grid; 
-            grid-template-columns: repeat(15, 1fr); 
-            grid-template-rows: repeat(15, 1fr);
-            width: 96vw; height: 96vw; max-width: 420px; max-height: 420px;
-            background: var(--white); border: 10px solid var(--gold);
-            border-radius: 12px; box-shadow: 0 15px 40px rgba(0,0,0,0.8);
-            position: relative;
+            display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr);
+            width: 95vw; height: 95vw; max-width: 420px; max-height: 420px;
+            background: #fff; border: 10px solid var(--gold); border-radius: 12px; box-shadow: 0 15px 40px #000; position: relative;
         }
 
-        /* सेल्स की बारीक कोडिंग */
-        .cell { border: 0.1px solid rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center; position: relative; font-size: 1.2rem; }
+        .cell { border: 0.1px solid rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center; position: relative; }
 
-        /* --- 3. कोनों के शाही महल (Home Bases) --- */
-        .home-base { grid-column: span 6; grid-row: span 6; display: grid; grid-template-columns: repeat(2, 1fr); padding: 12%; gap: 15px; border: 1px solid #000; z-index: 5; }
-        .red-base { grid-area: 1/1/7/7; background: var(--red); }
-        .green-base { grid-area: 1/10/7/16; background: var(--green); }
-        .blue-base { grid-area: 10/1/16/7; background: var(--blue); }
-        .yellow-base { grid-area: 10/10/16/16; background: var(--yellow); }
+        /* शाही घर */
+        .home { grid-column: span 6; grid-row: span 6; display: grid; grid-template-columns: repeat(2, 1fr); padding: 12%; gap: 15px; border: 1px solid #000; z-index: 5; }
+        .red { grid-area: 1/1/7/7; background: var(--r); }
+        .green { grid-area: 1/10/7/16; background: var(--g); }
+        .blue { grid-area: 10/1/16/7; background: var(--b); }
+        .yellow { grid-area: 10/10/16/16; background: var(--y); }
 
-        .token-slot { background: var(--white); border-radius: 50%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border: 2px solid #333; box-shadow: inset 0 0 10px rgba(0,0,0,0.2); }
+        .slot { background: #fff; border-radius: 50%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border: 2px solid #333; }
         
-        /* गोटियाँ (The Royal Tokens) */
+        /* गोटियाँ और उनकी चमक */
         .token { 
-            width: 80%; height: 80%; border-radius: 50%; border: 2px solid #fff; 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5); z-index: 10;
+            width: 85%; height: 85%; border-radius: 50%; border: 2px solid #fff; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5); z-index: 100; cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         }
         .rt { background: radial-gradient(circle at 35% 35%, #ff4d4d, #990000); }
         .gt { background: radial-gradient(circle at 35% 35%, #4dff4d, #006600); }
-        .bt { background: radial-gradient(circle at 35% 35%, #4d4dff, #000099); }
-        .yt { background: radial-gradient(circle at 35% 35%, #ffff4d, #999900); }
+        
+        .active-token { animation: glow 0.8s infinite alternate; transform: scale(1.1); }
+        @keyframes glow { from { box-shadow: 0 0 5px gold; } to { box-shadow: 0 0 20px gold; } }
 
-        /* --- 4. केंद्र का संगम (The Conic Center) --- */
-        .center-finish {
-            grid-area: 7/7/10/10; border: 2px solid #000; z-index: 10;
-            background: conic-gradient(from 45deg, var(--yellow) 0deg 90deg, var(--blue) 90deg 180deg, var(--red) 180deg 270deg, var(--green) 270deg 360deg);
-        }
+        .center { grid-area: 7/7/10/10; border: 2px solid #000; z-index: 10; background: conic-gradient(from 45deg, var(--y) 0deg 90deg, var(--b) 90deg 180deg, var(--r) 180deg 270deg, var(--g) 270deg 360deg); }
 
-        /* रास्तों के पक्के रंग */
-        .p-red { background: var(--red); } .p-green { background: var(--green); }
-        .p-blue { background: var(--blue); } .p-yellow { background: var(--yellow); }
-        .star-spot { background: #e2e8f0; color: #1e293b; font-weight: bold; }
+        .p-r { background: var(--r); } .p-g { background: var(--g); }
+        .p-b { background: var(--b); } .p-y { background: var(--y); }
+        .star { background: #e2e8f0; font-weight: bold; color: #1e293b; }
 
-        /* --- 5. शाही पासा (The Professional Dice) --- */
-        .controls { display: flex; flex-direction: column; align-items: center; margin-top: 15px; }
-        #dice-box {
-            width: 85px; height: 85px; background: #fff; border-radius: 18px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 50px; color: var(--black); font-weight: bold;
-            box-shadow: 0 10px 0 #94a3b8, 0 20px 30px rgba(0,0,0,0.6);
-            cursor: pointer; transition: 0.1s;
-        }
-        #dice-box:active { transform: translateY(5px); box-shadow: 0 5px 0 #94a3b8; }
-        #status-msg { margin-top: 12px; font-weight: bold; color: var(--gold); font-size: 1.1rem; letter-spacing: 1px; }
+        #dice-box { width: 85px; height: 85px; background: #fff; border-radius: 18px; margin-top: 20px; display: flex; align-items: center; justify-content: center; font-size: 50px; color: #000; box-shadow: 0 8px 0 #94a3b8; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="game-area">
-        <h1 style="color:var(--gold); margin: 0 0 10px 0; text-shadow: 2px 2px #000;">👑 MY LUDO - ROYAL 👑</h1>
-        
-        <div class="ludo-board" id="board-container">
-            <div class="home-base red-base"><div class="token-slot"><div class="token rt"></div></div><div class="token-slot"><div class="token rt"></div></div><div class="token-slot"><div class="token rt"></div></div><div class="token-slot"><div class="token rt"></div></div></div>
-            <div class="home-base green-base"><div class="token-slot"><div class="token gt"></div></div><div class="token-slot"><div class="token gt"></div></div><div class="token-slot"><div class="token gt"></div></div><div class="token-slot"><div class="token gt"></div></div></div>
-            <div class="home-base blue-base"><div class="token-slot"><div class="token bt"></div></div><div class="token-slot"><div class="token bt"></div></div><div class="token-slot"><div class="token bt"></div></div><div class="token-slot"><div class="token bt"></div></div></div>
-            <div class="home-base yellow-base"><div class="token-slot"><div class="token yt"></div></div><div class="token-slot"><div class="token yt"></div></div><div class="token-slot"><div class="token yt"></div></div><div class="token-slot"><div class="token yt"></div></div></div>
-            
-            <div class="center-finish"></div>
-        </div>
-
-        <div class="controls">
-            <div id="dice-box" onclick="rollDice()">🎲</div>
-            <p id="status-msg">पासा फेंकें</p>
-        </div>
+    <h1 style="color:var(--gold); margin-bottom: 10px;">👑 MY LUDO - PRO v19 👑</h1>
+    
+    <div class="ludo-board" id="board">
+        <div class="home red" id="red-base"></div>
+        <div class="home green" id="green-base"></div>
+        <div class="home blue" id="blue-base"></div>
+        <div class="home yellow" id="yellow-base"></div>
+        <div class="center"></div>
     </div>
 
+    <div id="dice-box" onclick="roll()">🎲</div>
+    <p id="msg" style="margin-top:10px; font-weight:bold; color:var(--gold)">पासा फेंकें</p>
+
     <script>
-        // --- द चाणक्य इंजन (The Core Logic) ---
-        function initializeBoard() {
-            const board = document.getElementById('board-container');
-            // गणितीय सितारे (The 8 Scientific Stars)
-            const stars = [
-                {r:7,c:2}, {r:9,c:3},   // Red Stars
-                {r:2,c:9}, {r:3,c:7},   // Green Stars
-                {r:9,c:14}, {r:7,c:13}, // Yellow Stars
-                {r:14,c:7}, {r:13,c:9}  // Blue Stars
-            ];
+        let diceVal = 0;
+        let canMove = false;
+        let currentPlayer = 'red';
 
+        function init() {
+            const b = document.getElementById('board');
+            const stars = [{r:7,c:2},{r:9,c:3},{r:2,c:9},{r:3,c:7},{r:9,c:14},{r:7,c:13},{r:14,c:7},{r:13,c:9}];
+            
             for(let i=0; i<225; i++) {
-                let r = Math.floor(i/15) + 1;
-                let c = (i%15) + 1;
-
-                // केवल वही सेल बनाएँ जो होम बेस या सेंटर में नहीं हैं
+                let r=Math.floor(i/15)+1, c=(i%15)+1;
                 if(!((r<=6 && c<=6) || (r<=6 && c>=10) || (r>=10 && c<=6) || (r>=10 && c>=10) || (r>=7 && r<=9 && c>=7 && c<=9))) {
                     const cell = document.createElement('div');
                     cell.className = 'cell';
-                    cell.style.gridArea = `${r} / ${c}`;
+                    cell.id = `cell-${r}-${c}`;
+                    cell.style.gridArea = `${r}/${c}`;
 
-                    // सटीक रास्ते की कोडिंग (Path Mapping)
-                    if (r === 8 && c >= 2 && c <= 6) cell.classList.add('p-red');
-                    if (c === 8 && r >= 2 && r <= 6) cell.classList.add('p-green');
-                    if (r === 8 && c >= 10 && c <= 14) cell.classList.add('p-yellow');
-                    if (c === 8 && r >= 10 && r <= 14) cell.classList.add('p-blue');
-
-                    // सितारों की सटीक प्लेसमेंट
-                    if (stars.some(s => s.r === r && s.c === c)) {
-                        cell.innerHTML = "⭐";
-                        cell.classList.add('star-spot');
-                    }
-                    board.appendChild(cell);
+                    if (r===8 && c>=2 && c<=6) cell.classList.add('p-r');
+                    if (c===8 && r>=2 && r<=6) cell.classList.add('p-g');
+                    if (c===8 && r>=10 && r<=14) cell.classList.add('p-b');
+                    if (r===8 && c>=10 && c<=14) cell.classList.add('p-y');
+                    if (stars.some(s=>s.r===r && s.c===c)) { cell.innerHTML="⭐"; cell.classList.add('star'); }
+                    b.appendChild(cell);
                 }
+            }
+            setupTokens();
+        }
+
+        function setupTokens() {
+            ['red', 'green', 'blue', 'yellow'].forEach(color => {
+                const base = document.getElementById(`${color}-base`);
+                base.innerHTML = '';
+                for(let i=0; i<4; i++) {
+                    const slot = document.createElement('div');
+                    slot.className = 'slot';
+                    const token = document.createElement('div');
+                    token.className = `token ${color.charAt(0)}t`;
+                    token.id = `token-${color}-${i}`;
+                    token.onclick = (e) => handleTokenClick(color, token, e);
+                    slot.appendChild(token);
+                    base.appendChild(slot);
+                }
+            });
+        }
+
+        function roll() {
+            if (canMove) return;
+            diceVal = Math.floor(Math.random()*6)+1;
+            document.getElementById('dice-box').innerHTML = ["","⚀","⚁","⚂","⚃","⚄","⚅"][diceVal];
+            document.getElementById('msg').innerHTML = "नंबर आया: " + diceVal;
+            
+            canMove = true;
+            document.querySelectorAll(`.${currentPlayer.charAt(0)}t`).forEach(t => t.classList.add('active-token'));
+            if(navigator.vibrate) navigator.vibrate(50);
+        }
+
+        function handleTokenClick(color, token, e) {
+            if (!canMove || color !== currentPlayer) return;
+
+            // नियम: 6 आने पर घर से बाहर निकलना
+            if (diceVal === 6 && token.parentElement.classList.contains('slot')) {
+                const startPos = color === 'red' ? 'cell-7-2' : (color === 'green' ? 'cell-2-9' : (color === 'blue' ? 'cell-14-7' : 'cell-9-14'));
+                document.getElementById(startPos).appendChild(token);
+                endTurn();
+            } 
+            // मैदान में गोटी को आगे बढ़ाना (अभी इसे सिर्फ १ डब्बा जम्प दे रहे हैं टेस्टिंग के लिए)
+            else if (!token.parentElement.classList.contains('slot')) {
+                alert("गोटी आगे बढ़ रही है!"); 
+                endTurn();
             }
         }
 
-        function rollDice() {
-            const v = Math.floor(Math.random() * 6) + 1;
-            const diceIcons = ["", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
-            const diceElement = document.getElementById('dice-box');
-            
-            // एनीमेशन के लिए छोटा सा रोटेशन
-            diceElement.style.transform = "rotate(360deg)";
-            setTimeout(() => {
-                diceElement.innerHTML = diceIcons[v];
-                diceElement.style.transform = "rotate(0deg)";
-                document.getElementById('status-msg').innerHTML = "नंबर आया: " + v;
-                if(navigator.vibrate) navigator.vibrate(50);
-            }, 100);
+        function endTurn() {
+            canMove = false;
+            document.querySelectorAll('.token').forEach(t => t.classList.remove('active-token'));
+            document.getElementById('msg').innerHTML = "अगली चाल...";
+            // यहाँ हम बारी बदल सकते हैं: currentPlayer = (currentPlayer === 'red' ? 'green' : 'red');
         }
 
-        window.onload = initializeBoard;
+        window.onload = init;
     </script>
 </body>
 </html>
