@@ -3,41 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Ludo Royal v22 - The Detailed Monument</title>
+    <title>My Ludo Royal v23 - Ultra Precision</title>
     <style>
-        /* --- 1. इंजीनियरिंग सेटिंग्स (The Structural Code) --- */
+        /* --- 1. इंजीनियरिंग बेस (The Foundation) --- */
         :root {
             --red: #d00000; --green: #008000; --blue: #0000ff; --yellow: #ffcc00;
             --gold: #c5a059; --bg: #020617; --white: #ffffff;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
-        body { 
-            background: var(--bg); color: white; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; height: 100vh; overflow: hidden; 
-        }
+        body { background: var(--bg); color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
 
-        /* --- 2. 15x15 का पक्का ढांचा (The 15x15 Grid) --- */
+        /* --- 2. 15x15 का मज़बूत ढांचा (The 15x15 Grid) --- */
         .ludo-container {
-            width: 95vw; height: 95vw; max-width: 420px; max-height: 420px;
+            width: 96vw; height: 96vw; max-width: 420px; max-height: 420px;
             background: var(--white); border: 12px solid var(--gold);
             border-radius: 12px; box-shadow: 0 0 60px #000;
-            display: grid;
-            grid-template-columns: repeat(15, 1fr);
-            grid-template-rows: repeat(15, 1fr);
+            display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr);
             position: relative;
         }
 
-        /* सेल की सूक्ष्म कोडिंग */
-        .c { border: 0.1px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; position: relative; }
+        .c { border: 0.1px solid rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; position: relative; font-size: 1.1rem; }
 
-        /* --- 3. चारों कोनों के शाही किले (The 4 Fortresses) --- */
+        /* --- 3. शाही महल (The 4 Corner Bases) --- */
         .home { grid-column: span 6; grid-row: span 6; border: 2px solid #000; display: grid; grid-template-columns: repeat(2, 1fr); padding: 12%; gap: 15px; z-index: 10; }
-        
-        .red-home { grid-area: 1 / 1 / 7 / 7; background: var(--red); }
-        .green-home { grid-area: 1 / 10 / 7 / 16; background: var(--green); }
-        .blue-home { grid-area: 10 / 1 / 16 / 7; background: var(--blue); }
-        .yellow-home { grid-area: 10 / 10 / 16 / 16; background: var(--yellow); }
+        .red-home { grid-area: 1/1/7/7; background: var(--red); }
+        .green-home { grid-area: 1/10/7/16; background: var(--green); }
+        .blue-home { grid-area: 10/1/16/7; background: var(--blue); }
+        .yellow-home { grid-area: 10/10/16/16; background: var(--yellow); }
 
         .slot { background: #fff; border-radius: 50%; border: 3px solid #333; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 10px rgba(0,0,0,0.3); }
         .token { width: 85%; height: 85%; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 4px 8px #000; }
@@ -46,30 +38,30 @@
         .bt { background: radial-gradient(circle, #5555ff, #000080); }
         .yt { background: radial-gradient(circle, #ffff55, #990); }
 
-        /* --- 4. केंद्र का संगम (The Royal Conic Center) --- */
+        /* --- 4. केंद्र (Center Finish) --- */
         .center-triangle {
-            grid-area: 7 / 7 / 10 / 10; border: 2px solid #000; z-index: 20;
+            grid-area: 7/7/10/10; border: 2px solid #000; z-index: 20;
             background: conic-gradient(from 45deg, var(--yellow) 0deg 90deg, var(--blue) 90deg 180deg, var(--red) 180deg 270deg, var(--green) 270deg 360deg);
         }
 
-        /* --- 5. रास्तों की सूक्ष्म कोडिंग (Path Precision) --- */
-        .p-r { background: var(--red) !important; } .p-g { background: var(--green) !important; }
-        .p-b { background: var(--blue) !important; } .p-y { background: var(--yellow) !important; }
-        .star { background: #cbd5e1 !important; color: #000; font-weight: bold; font-size: 1.2rem; }
+        /* --- 5. रास्तों की कोडिंग (Strict Path Coloring) --- */
+        .p-r { background: var(--red) !important; }
+        .p-g { background: var(--green) !important; }
+        .p-b { background: var(--blue) !important; }
+        .p-y { background: var(--yellow) !important; }
+        .star { background: #cbd5e1 !important; color: #000; font-weight: bold; }
 
-        /* --- 6. पासा (The High-Contrast Dice) --- */
+        /* --- 6. पासा (High Contrast Dice) --- */
         #dice-btn { 
             width: 85px; height: 85px; background: #fff; border-radius: 15px; margin-top: 25px;
             display: flex; align-items: center; justify-content: center; font-size: 50px; 
-            color: #000; font-weight: bold; box-shadow: 0 10px 0 #94a3b8, 0 20px 30px rgba(0,0,0,0.5); 
-            cursor: pointer; 
+            color: #000; box-shadow: 0 10px 0 #94a3b8; cursor: pointer; 
         }
-        #msg { margin-top: 15px; font-weight: bold; color: var(--gold); font-size: 1.2rem; text-shadow: 1px 1px #000; }
     </style>
 </head>
 <body>
 
-    <h1 style="color:var(--gold); margin-bottom: 15px;">👑 MY LUDO - ROYAL v22 👑</h1>
+    <h1 style="color:var(--gold); margin-bottom: 10px;">👑 MY LUDO - ROYAL v23 👑</h1>
     
     <div class="ludo-container" id="board">
         <div class="home red-home"><div class="slot"><div class="token rt"></div></div><div class="slot"><div class="token rt"></div></div><div class="slot"><div class="token rt"></div></div><div class="slot"><div class="token rt"></div></div></div>
@@ -78,38 +70,43 @@
         <div class="home yellow-home"><div class="slot"><div class="token yt"></div></div><div class="slot"><div class="token yt"></div></div><div class="slot"><div class="token yt"></div></div><div class="slot"><div class="token yt"></div></div></div>
         
         <div class="center-triangle"></div>
-
-        </div>
+    </div>
     
     <div id="dice-btn" onclick="roll()">🎲</div>
-    <p id="msg">शाही चाल के लिए पासा छुएं</p>
+    <p id="msg" style="margin-top:10px; font-weight:bold; color:var(--gold)">पासा फेंकें</p>
 
     <script>
-        // --- द चाणक्य विग्रह इंजन (Manual Precision Engine) ---
+        // --- द चाणक्य विग्रह v23 (The Micro-Level Engine) ---
         function renderBoardDetailed() {
             const b = document.getElementById('board');
-            // गणितीय रूप से ८ सही सितारे (Exactly 8 Safe Spots)
-            const stars = ["7-2", "9-3", "2-9", "3-7", "9-14", "7-13", "14-7", "13-9"];
             
             for(let r=1; r<=15; r++) {
                 for(let c=1; c<=15; c++) {
-                    // अगर डब्बा घर या सेंटर में नहीं है, तभी उसे बनाओ
+                    // Skip Home areas and Center (वे पहले से HTML में हैं)
                     if(!((r<=6 && c<=6) || (r<=6 && c>=10) || (r>=10 && c<=6) || (r>=10 && c>=10) || (r>=7 && r<=9 && c>=7 && c<=9))) {
                         const cell = document.createElement('div');
                         cell.className = 'c';
                         cell.style.gridArea = `${r} / ${c}`;
 
-                        // --- सूक्ष्म स्तर पर रास्ते की रंगाई (Home Stretch) ---
-                        if (r === 8 && c >= 2 && c <= 6) cell.classList.add('p-red');
-                        if (c === 8 && r >= 2 && r <= 6) cell.classList.add('p-green');
-                        if (c === 8 && r >= 10 && r <= 14) cell.classList.add('p-blue');
-                        if (r === 8 && c >= 10 && c <= 14) cell.classList.add('p-yellow');
+                        // --- १. रंगीन रास्ते (Home Stretches - 5 Cells each) ---
+                        if (r === 8 && c >= 2 && c <= 6) cell.classList.add('p-r'); // Red
+                        if (c === 8 && r >= 2 && r <= 6) cell.classList.add('p-g'); // Green
+                        if (c === 8 && r >= 10 && r <= 14) cell.classList.add('p-b'); // Blue
+                        if (r === 8 && c >= 10 && c <= 14) cell.classList.add('p-y'); // Yellow (यहाँ फिक्स किया है!)
 
-                        // --- सितारों का विग्रह (The Stars) ---
-                        if (stars.includes(`${r}-${c}`)) {
+                        // --- २. केवल ८ सटीक सितारे (The 8 Scientific Safe Spots) ---
+                        // सितारे केवल सफ़ेद सेल्स पर होने चाहिए
+                        const starPositions = ["7,2", "9,3", "2,9", "3,7", "9,14", "7,13", "14,7", "13,9"];
+                        if (starPositions.includes(`${r},${c}`)) {
                             cell.innerHTML = "⭐";
                             cell.classList.add('star');
                         }
+
+                        // --- ३. शुरुआती बिंदु का बॉर्डर (Start Cell Hints) ---
+                        if ((r===7 && c===2) || (r===2 && c===9) || (r===14 && c===7) || (r===9 && c===14)) {
+                            cell.style.boxShadow = "inset 0 0 10px rgba(0,0,0,0.2)";
+                        }
+
                         b.appendChild(cell);
                     }
                 }
