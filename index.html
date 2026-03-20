@@ -2,177 +2,83 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ludo Royal Pro v39</title>
-    <style>
-        :root { --r:#ff3e3e; --g:#2ecc71; --b:#3498db; --y:#f1c40f; --gold:#ffd700; --bg:#1a142e; }
-        * { margin:0; padding:0; box-sizing:border-box; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color:white; display:flex; flex-direction:column; align-items:center; height:100vh; overflow:hidden; }
-
-        /* प्लेयर प्रोफाइल */
-        .ui-bar { width:100%; display:flex; justify-content:space-between; padding:10px 15px; flex-shrink:0; }
-        .p-box { background:rgba(0,0,0,0.6); border:2px solid #555; border-radius:10px; display:flex; align-items:center; padding:5px 10px; gap:8px; min-width:120px; }
-        .active-p { border-color:var(--gold); box-shadow: 0 0 15px var(--gold); }
-        .av { width:36px; height:36px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:24px; }
-
-        /* --- वज्र ढांचा (The Unbreakable Grid) --- */
-        .board-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; padding: 10px; }
-        .ludo-board { 
-            display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr);
-            width: 95vw; height: 95vw; max-width: 400px; max-height: 400px;
-            background: #fff; border: 8px solid #333; box-shadow: 0 20px 50px #000;
-            position: relative; aspect-ratio: 1/1; /* डब्बों को चौकोर रखने के लिए */
-        }
-        
-        /* हर डब्बा (Cell) */
-        .c { border: 0.1px solid #ddd; display: flex; align-items: center; justify-content: center; position: relative; width: 100%; height: 100%; }
-
-        /* शाही घर (Hardcoded Areas) */
-        .base { grid-column: span 6; grid-row: span 6; display: grid; grid-template-columns: repeat(2, 1fr); padding: 12%; gap: 10px; border: 1.5px solid #000; z-index: 10; }
-        .b-blue { grid-area: 1/1/7/7; background: var(--b); }
-        .b-yellow { grid-area: 1/10/7/16; background: var(--y); }
-        .b-red { grid-area: 10/1/16/7; background: var(--r); }
-        .b-green { grid-area: 10/10/16/16; background: var(--g); }
-
-        .slot { background: rgba(0,0,0,0.2); border-radius: 50%; width: 100%; height: 100%; border: 2.5px solid #fff; display: flex; align-items: center; justify-content: center; }
-        
-        /* 3D टोकन और जम्प */
-        .token { width: 85%; height: 85%; border-radius: 50%; border: 2.5px solid #fff; box-shadow: 0 5px 10px #000; cursor: pointer; z-index: 100; transition: 0.2s; }
-        .rt { background: radial-gradient(circle at 35% 35%, #ff6b6b, #800); }
-        .active-token { animation: glow 0.8s infinite alternate; transform: scale(1.1); }
-        @keyframes glow { from { box-shadow: 0 0 5px gold; } to { box-shadow: 0 0 25px gold; } }
-        .jump-3d { transform: translateY(-30px) scale(1.5); z-index: 200 !important; box-shadow: 0 25px 35px rgba(0,0,0,0.5) !important; }
-
-        .center { grid-area: 7/7/10/10; background: conic-gradient(from 45deg, var(--y) 0deg 90deg, var(--g) 90deg 180deg, var(--r) 180deg 270deg, var(--b) 270deg 360deg); border: 2px solid #000; z-index: 20; }
-
-        /* रास्तों की सटीक रंगाई (Manual Matching) */
-        .p-r { background: var(--r) !important; } .p-g { background: var(--g) !important; }
-        .p-b { background: var(--b) !important; } .p-y { background: var(--y) !important; }
-        .star { font-size: 1.4rem; font-weight: bold; }
-
-        /* पासा कंट्रोल (Fixed at Bottom) */
-        .footer { width:100%; display:flex; flex-direction:column; align-items:center; padding:15px; background:#120d24; border-top:3px solid var(--gold); position: sticky; bottom: 0; z-index: 300; }
-        .dice-box { width:80px; height:80px; background:#fff; border-radius:18px; color:#000; font-size:50px; display:flex; align-items:center; justify-content:center; box-shadow: 0 8px 0 #94a3b8; cursor:pointer; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>लूडो गेम बोर्ड UI</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="main-container">
+        <div class="header-container">
+            <div class="score-card player1">
+                <img src="images/robot.png" alt="कंप्यूटर" class="player-icon">
+                <span class="player-name">कंप्यूटर</span>
+                <span class="tokens-left">⚔ 0</span>
+            </div>
+            <div class="score-card player2">
+                <img src="images/robot.png" alt="कंप्यूटर" class="player-icon">
+                <span class="player-name">कंप्यूटर</span>
+                <span class="tokens-left">⚔ 0</span>
+            </div>
+        </div>
 
-    <audio id="s-dice" src="https://assets.mixkit.co/active_storage/sfx/2004/2004-preview.mp3"></audio>
-    <audio id="s-move" src="https://assets.mixkit.co/active_storage/sfx/2012/2012-preview.mp3"></audio>
+        <div class="ludo-board">
+            <div class="base blue-base">
+                <div class="token blue-token"></div>
+                <div class="token blue-token"></div>
+                <div class="token blue-token"></div>
+                <div class="token blue-token"></div>
+            </div>
 
-    <div class="ui-bar">
-        <div class="p-box" id="u-blue" style="border-color:var(--b)"><div class="av">🤖</div><div style="font-size:11px;">कंप्यूटर<br>⚔️ 0</div></div>
-        <div class="p-box" id="u-yellow" style="border-color:var(--y)"><div class="av">🤖</div><div style="font-size:11px;">कंप्यूटर<br>⚔️ 0</div></div>
-    </div>
+            <div class="base yellow-base">
+                <div class="token yellow-token"></div>
+                <div class="token yellow-token"></div>
+                <div class="token yellow-token"></div>
+                <div class="token yellow-token"></div>
+            </div>
 
-    <div class="board-container">
-        <div class="ludo-board" id="board">
-            <div class="base b-blue" id="blue-base"></div>
-            <div class="base b-yellow" id="yellow-base"></div>
-            <div class="base b-red" id="red-base"></div>
-            <div class="base b-green" id="green-base"></div>
-            <div class="center"></div>
+            <div class="finish-square">
+                <div class="blue-part"></div>
+                <div class="yellow-part"></div>
+                <div class="green-part"></div>
+                <div class="red-part"></div>
+            </div>
+
+            <div class="base red-base">
+                <div class="token red-token"></div>
+                <div class="token red-token"></div>
+                <div class="token red-token"></div>
+                <div class="token red-token"></div>
+            </div>
+
+            <div class="base green-base">
+                <div class="token green-token"></div>
+                <div class="token green-token"></div>
+                <div class="token green-token"></div>
+                <div class="token green-token"></div>
+            </div>
+
+            <div class="grid-cell" style="grid-column: 7; grid-row: 1;"></div> <div class="grid-cell" style="grid-column: 8; grid-row: 1;"></div>
+            <div class="grid-cell" style="grid-column: 9; grid-row: 1;"></div>
+            </div>
+
+        <div class="footer-container">
+            <div class="score-card player3 active-player">
+                <img src="images/person.png" alt="खिलाड़ी" class="player-icon">
+                <span class="player-name">खिलाड़ी (लाल)</span>
+                <span class="tokens-left">⚔ 0</span>
+            </div>
+            <div class="score-card player4">
+                <img src="images/robot.png" alt="कंप्यूटर" class="player-icon">
+                <span class="player-name">कंप्यूटर</span>
+                <span class="tokens-left">⚔ 0</span>
+            </div>
+        </div>
+
+        <div class="controls-container">
+            <img src="images/dice-icon.png" alt="पासा" class="dice-icon">
+            <div class="dice">5</div>
         </div>
     </div>
-
-    <div class="ui-bar">
-        <div class="p-box active-p" id="u-red" style="border-color:var(--r)"><div class="av">👨</div><div style="font-size:11px;">खिलाड़ी (लाल)<br>⚔️ 0</div></div>
-        <div class="p-box" id="u-green" style="border-color:var(--g)"><div class="av">🤖</div><div style="font-size:11px;">कंप्यूटर<br>⚔️ 0</div></div>
-    </div>
-
-    <div class="footer">
-        <div class="dice-box" id="dice" onclick="roll()">🎲</div>
-        <div id="msg" style="color:var(--gold); font-weight:bold; margin-top:8px;">पासा छुएं!</div>
-    </div>
-
-    <script>
-        let diceVal = 0, turn = 'red', canMove = false;
-        let positions = { red:[-1,-1,-1,-1] }; 
-        const redPath = ["14-7","13-7","12-7","11-7","10-7","9-6","9-5","9-4","9-3","9-2","9-1","8-1","7-1","7-2","7-3","7-4","7-5","7-6","6-7","5-7","4-7","3-7","2-7","1-7","1-8","1-9","2-9","3-9","4-9","5-9","6-9","7-10","7-11","7-12","7-13","7-14","7-15","8-15","9-15","9-14","9-13","9-12","9-11","9-10","10-9","11-9","12-9","13-9","14-9","15-9","15-8","14-8","13-8","12-8","11-8","10-8"];
-
-        function build() {
-            const b = document.getElementById('board');
-            const stars = { "14-7":"var(--r)", "7-2":"var(--b)", "2-9":"var(--y)", "9-14":"var(--g)" };
-            
-            for(let r=1; r<=15; r++) {
-                for(let c=1; c<=15; c++) {
-                    // अगर डब्बा बेस या सेंटर में नहीं है, तभी सेल बनाएं
-                    if(!((r<=6 && c<=6) || (r<=6 && c>=10) || (r>=10 && c<=6) || (r>=10 && c>=10) || (r>=7 && r<=9 && c>=7 && c<=9))) {
-                        const cell = document.createElement('div');
-                        cell.className = 'c'; cell.id = `c-${r}-${c}`; cell.style.gridArea = `${r}/${c}`;
-                        
-                        // पक्की रंगाई (Manual Pathing)
-                        if (c===8 && r>=10 && r<=14) cell.classList.add('p-r');
-                        if (r===8 && c>=2 && c<=6) cell.classList.add('p-b');
-                        if (c===8 && r>=2 && r<=6) cell.classList.add('p-y');
-                        if (r===8 && c>=10 && c<=14) cell.classList.add('p-g');
-
-                        const pos = `${r}-${c}`;
-                        if (stars[pos]) { cell.innerHTML="★"; cell.style.color=stars[pos]; cell.classList.add('star'); }
-                        b.appendChild(cell);
-                    }
-                }
-            }
-            setup();
-        }
-
-        function setup() {
-            const rb = document.getElementById('red-base');
-            rb.innerHTML = '';
-            for(let i=0; i<4; i++) {
-                const slot = document.createElement('div'); slot.className = 'slot';
-                const t = document.createElement('div');
-                t.className = `token rt`; t.id = `t-red-${i}`;
-                t.onclick = () => move('red', i);
-                slot.appendChild(t); rb.appendChild(slot);
-            }
-        }
-
-        function roll() {
-            if (canMove) return;
-            document.getElementById('s-dice').play();
-            diceVal = Math.floor(Math.random()*6)+1;
-            document.getElementById('dice').innerHTML = ["","⚀","⚁","⚂","⚃","⚄","⚅"][diceVal];
-            document.getElementById('msg').innerHTML = "आया: " + diceVal;
-            canMove = true;
-            document.querySelectorAll('.rt').forEach(el => el.classList.add('active-token'));
-        }
-
-        async function move(color, idx) {
-            if (!canMove || color !== turn) return;
-            const token = document.getElementById(`t-${color}-${idx}`);
-            
-            if (positions[color][idx] === -1 && diceVal === 6) {
-                positions[color][idx] = 0;
-                document.getElementById(`c-${redPath[0]}`).appendChild(token);
-                document.getElementById('s-move').play();
-                finish();
-            } else if (positions[color][idx] !== -1) {
-                canMove = false;
-                document.querySelectorAll('.token').forEach(el => el.classList.remove('active-token'));
-                for(let i=0; i<diceVal; i++) {
-                    positions[color][idx]++;
-                    if (positions[color][idx] < redPath.length) {
-                        const target = document.getElementById(`c-${redPath[positions[color][idx]]}`);
-                        token.classList.add('jump-3d');
-                        document.getElementById('s-move').play();
-                        target.appendChild(token);
-                        await new Promise(r => setTimeout(r, 260));
-                        token.classList.remove('jump-3d');
-                    }
-                }
-                finish();
-            }
-        }
-
-        function finish() {
-            canMove = false;
-            document.querySelectorAll('.token').forEach(el => el.classList.remove('active-token'));
-            if (diceVal !== 6) document.getElementById('msg').innerHTML = "अगली बारी...";
-            else document.getElementById('msg').innerHTML = "शानदार! ६ आया!";
-        }
-
-        window.onload = build;
-    </script>
 </body>
-</html>
+    </html>
+    
