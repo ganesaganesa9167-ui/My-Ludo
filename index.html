@@ -3,113 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shiv Shakti Ludo - Updated</title>
+    <title>Ludo Game UI</title>
     <style>
-        * { box-sizing: border-box; }
+        /* CSS: पूरा डिजाइन यहाँ है */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            background-color: #1b1b32; /* डार्क नेवी ब्लू जैसा इमेज में है */
+            background-color: #1a1a2e; /* गहरा नेवी ब्लू बैकग्राउंड */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            margin: 0;
-            font-family: sans-serif;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: white;
         }
 
-        /* टॉप स्टेटस बार */
+        /* टॉप प्लेयर स्टेटस बॉक्स */
         .status-container {
             display: flex;
             justify-content: space-between;
-            width: 350px;
-            margin-bottom: 20px;
+            width: 360px;
+            margin-bottom: 25px;
         }
 
-        .player-status {
+        .player-box {
             border: 2px solid;
-            padding: 8px 12px;
-            border-radius: 8px;
-            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            width: 110px;
             text-align: center;
-            font-size: 14px;
+            font-size: 13px;
         }
-        .blue-status { border-color: #3498db; }
-        .yellow-status { border-color: #f1c40f; }
+        .p-blue { border-color: #3498db; }
+        .p-yellow { border-color: #f1c40f; }
 
         /* मुख्य लूडो बोर्ड */
         .ludo-board {
             display: grid;
             grid-template-columns: repeat(15, 1fr);
             grid-template-rows: repeat(15, 1fr);
-            width: 350px;
-            height: 350px;
+            width: 360px;
+            height: 360px;
             background-color: white;
-            border: 8px solid #333;
-            position: relative;
+            border: 10px solid #333; /* गहरा बाहरी बॉर्डर */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* बड़े घर (Home Areas) */
-        .home { grid-column: span 6; grid-row: span 6; display: grid; grid-template-columns: 1fr 1fr; padding: 15px; }
+        /* होम एरिया (Homes) */
+        .home { grid-column: span 6; grid-row: span 6; display: grid; grid-template-columns: 1fr 1fr; padding: 12px; }
         
-        .red-home { background-color: #ff3e5e; grid-column: 1 / 7; grid-row: 1 / 7; }
-        .yellow-home { background-color: #ffcc00; grid-column: 10 / 16; grid-row: 1 / 7; }
-        .blue-home { background-color: #2e86c1; grid-column: 1 / 7; grid-row: 10 / 16; }
-        .green-home { background-color: #27ae60; grid-column: 10 / 16; grid-row: 10 / 16; }
+        .red-home { background-color: #ff3e5e; }
+        .yellow-home { background-color: #ffcc00; }
+        .blue-home { background-color: #2e86c1; }
+        .green-home { background-color: #27ae60; }
 
-        /* गोटियों के स्लॉट (सफेद घेरे) */
+        /* गोटियों के लिए सफेद स्लॉट */
         .slot {
-            background: radial-gradient(circle, #ffffff, #e0e0e0);
+            background: radial-gradient(circle, #ffffff 40%, #dcdcdc 100%);
             border-radius: 50%;
-            margin: 5px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin: 6px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
 
-        /* सेंटर 2x2 ग्रिड */
-        .center-box {
+        /* सेंटर स्क्वायर (4 रंगों वाला) */
+        .center-grid {
             grid-column: 7 / 10;
             grid-row: 7 / 10;
             display: grid;
             grid-template-columns: 1fr 1fr;
         }
-        .c-green { background-color: #27ae60; }
-        .c-red { background-color: #ff3e5e; }
-        .c-yellow { background-color: #ffcc00; }
-        .c-blue { background-color: #2e86c1; }
+        /* तस्वीर के अनुसार रंगों का सटीक क्रम */
+        .c-green { background-color: #27ae60; } /* टॉप-लेफ्ट */
+        .c-red { background-color: #ff3e5e; }   /* टॉप-राइट */
+        .c-yellow { background-color: #ffcc00; }/* बॉटम-लेफ्ट */
+        .c-blue { background-color: #2e86c1; }  /* बॉटम-राइट */
 
         /* पासा (Dice) सेक्शन */
-        .dice-area {
-            margin-top: 30px;
+        .dice-section {
+            margin-top: 40px;
             text-align: center;
         }
 
-        .dice-box {
+        .dice-wrapper {
             background: white;
             color: black;
-            width: 70px;
-            height: 70px;
-            border-radius: 12px;
+            width: 85px;
+            height: 85px;
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            font-size: 50px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.4);
             cursor: pointer;
             margin: 10px auto;
+            transition: 0.2s;
         }
 
-        .result-label {
-            font-size: 18px;
-            color: #ffcc00;
+        .dice-wrapper:active { transform: scale(0.9); }
+
+        .result-text {
+            font-size: 20px;
+            color: #ffcc00; /* पीला टेक्स्ट जैसा तस्वीर में है */
             font-weight: bold;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
     <div class="status-container">
-        <div class="player-status blue-status">🤖 कंप्यूटर <br> ⚔️ 0</div>
-        <div class="player-status yellow-status">🤖 कंप्यूटर <br> ⚔️ 0</div>
+        <div class="player-box p-blue">
+            🤖 कंप्यूटर <br> ⚔️ 0
+        </div>
+        <div class="player-box p-yellow">
+            🤖 कंप्यूटर <br> ⚔️ 0
+        </div>
     </div>
 
     <div class="ludo-board">
@@ -117,39 +128,45 @@
             <div class="slot"></div><div class="slot"></div>
             <div class="slot"></div><div class="slot"></div>
         </div>
+        
+        <div style="grid-column: 7/10; grid-row: 1/7; background: white;"></div>
 
         <div class="home yellow-home">
             <div class="slot"></div><div class="slot"></div>
             <div class="slot"></div><div class="slot"></div>
         </div>
 
-        <div class="center-box">
+        <div style="grid-column: 1/7; grid-row: 7/10; background: white;"></div>
+
+        <div class="center-grid">
             <div class="c-green"></div>
             <div class="c-red"></div>
             <div class="c-yellow"></div>
             <div class="c-blue"></div>
         </div>
 
+        <div style="grid-column: 10/16; grid-row: 7/10; background: white;"></div>
+
         <div class="home blue-home"></div>
+
+        <div style="grid-column: 7/10; grid-row: 10/16; background: white;"></div>
 
         <div class="home green-home"></div>
     </div>
 
-    <div class="dice-area">
-        <div class="dice-box" id="dice" onclick="roll()">⚃</div>
-        <div class="result-label">आया: <span id="num">4</span></div>
+    <div class="dice-section">
+        <div class="dice-wrapper" id="dice" onclick="rollDice()">⚁</div>
+        <div class="result-text">आया: <span id="val">2</span></div>
     </div>
 
     <script>
-        function roll() {
-            const diceArr = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-            const n = Math.floor(Math.random() * 6) + 1;
-            document.getElementById('dice').innerText = diceArr[n-1];
-            document.getElementById('num').innerText = n;
+        // JavaScript: पासा फेंकने का लॉजिक
+        function rollDice() {
+            const diceIcons = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+            const random = Math.floor(Math.random() * 6) + 1;
             
-            // पासा घूमने का छोटा इफेक्ट
-            document.getElementById('dice').style.transform = "scale(0.9)";
-            setTimeout(() => { document.getElementById('dice').style.transform = "scale(1)"; }, 100);
+            document.getElementById('dice').innerText = diceIcons[random - 1];
+            document.getElementById('val').innerText = random;
         }
     </script>
 </body>
