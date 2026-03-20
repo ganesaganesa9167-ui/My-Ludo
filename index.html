@@ -3,28 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ludo Royal Pro v36</title>
+    <title>Ludo Royal Pro v37 - 3D Engine</title>
     <style>
         :root { --r:#ff3e3e; --g:#2ecc71; --b:#3498db; --y:#f1c40f; --gold:#ffd700; --bg:#1a142e; }
-        * { margin:0; padding:0; box-sizing:border-box; font-family: sans-serif; }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color:white; display:flex; flex-direction:column; align-items:center; height:100vh; overflow:hidden; }
 
         /* --- प्लेयर यूआई --- */
-        .ui-bar { width:100%; display:flex; justify-content:space-between; padding:5px 15px; flex-shrink:0; }
-        .p-box { background:rgba(0,0,0,0.5); border:2px solid #555; border-radius:8px; display:flex; align-items:center; padding:4px 8px; gap:8px; min-width:110px; }
-        .active-p { border-color:var(--gold); box-shadow: 0 0 15px var(--gold); background: rgba(255,215,0,0.1); }
-        .av { width:32px; height:32px; background:#fff; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:20px; }
+        .ui-bar { width:100%; display:flex; justify-content:space-between; padding:8px 15px; flex-shrink:0; }
+        .p-box { background:rgba(0,0,0,0.6); border:2.2px solid #555; border-radius:10px; display:flex; align-items:center; padding:5px 10px; gap:8px; min-width:120px; }
+        .active-p { border-color:var(--gold); box-shadow: 0 0 15px var(--gold); background: rgba(255,215,0,0.15); }
+        .av { width:36px; height:36px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:24px; border: 1px solid #000; }
 
-        /* --- प्रो-बोर्ड (मज़बूत ढांचा) --- */
-        .board-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
+        /* --- 15x15 पक्का बोर्ड --- */
+        .board-wrap { flex-grow: 1; display: flex; align-items: center; justify-content: center; width: 100%; }
         .board { 
             display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr);
             width:96vw; height:96vw; max-width:400px; max-height:400px;
-            background:#fff; border:6px solid #333; box-shadow:0 10px 40px #000; position:relative;
+            background:#fff; border:8px solid #333; box-shadow:0 15px 50px #000; position:relative;
         }
         .c { border:0.1px solid #ddd; display:flex; align-items:center; justify-content:center; position:relative; }
 
-        .base { grid-column: span 6; grid-row: span 6; display:grid; grid-template-columns:repeat(2,1fr); padding:10%; gap:10px; border:1px solid #000; z-index:10; }
+        /* बेस एरिया */
+        .base { grid-column: span 6; grid-row: span 6; display:grid; grid-template-columns:repeat(2,1fr); padding:10%; gap:12px; border:1.5px solid #000; z-index:10; }
         .b-blue { grid-area:1/1/7/7; background:var(--b); }
         .b-yellow { grid-area:1/10/7/16; background:var(--y); }
         .b-red { grid-area:10/1/16/7; background:var(--r); }
@@ -32,49 +33,49 @@
 
         .slot { background:rgba(0,0,0,0.2); border-radius:50%; width:100%; height:100%; border:2px solid #fff; display:flex; align-items:center; justify-content:center; }
         
-        /* 3D टोकन और एनीमेशन */
+        /* 3D टोकन */
         .token { 
-            width:80%; height:80%; border-radius:50%; border:2px solid #fff; 
-            box-shadow:0 4px 6px #000; cursor:pointer; z-index:100;
-            transition: all 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            width:85%; height:85%; border-radius:50%; border:2.5px solid #fff; 
+            box-shadow:0 6px 10px #000; cursor:pointer; z-index:100;
+            transition: all 0.25s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         }
-        .rt { background:radial-gradient(circle, #ff6b6b, #800); }
+        .rt { background:radial-gradient(circle at 35% 35%, #ff5555, #800); }
         .active-token { animation: tokenGlow 0.8s infinite alternate; }
-        @keyframes tokenGlow { from { box-shadow: 0 0 5px gold; transform: scale(1); } to { box-shadow: 0 0 20px gold; transform: scale(1.1); } }
+        @keyframes tokenGlow { from { box-shadow: 0 0 5px gold; transform: scale(1); } to { box-shadow: 0 0 25px gold; transform: scale(1.15); } }
         
-        /* 3D जम्प क्लास */
-        .jumping-3d { transform: translateY(-25px) scale(1.4) rotateX(15deg); z-index: 200 !important; box-shadow: 0 20px 30px rgba(0,0,0,0.5) !important; }
+        /* 3D जम्प एनीमेशन */
+        .jumping-3d { transform: translateY(-35px) scale(1.5); z-index: 200 !important; box-shadow: 0 25px 35px rgba(0,0,0,0.6) !important; }
 
-        .center { grid-area:7/7/10/10; background:conic-gradient(from 45deg, var(--y) 0deg 90deg, var(--g) 90deg 180deg, var(--r) 180deg 270deg, var(--b) 270deg 360deg); border:1px solid #000; z-index:15; }
+        .center { grid-area:7/7/10/10; background:conic-gradient(from 45deg, var(--y) 0deg 90deg, var(--g) 90deg 180deg, var(--r) 180deg 270deg, var(--b) 270deg 360deg); border:2px solid #000; z-index:15; }
         .p-red { background:var(--r)!important; }
-        .star { font-size:1.2rem; font-weight:bold; }
+        .star { font-size:1.4rem; font-weight:bold; }
 
-        /* --- पासा कंट्रोल (FIXED AT BOTTOM) --- */
+        /* --- पासा (FIXED BOTTOM PANEL) --- */
         .footer { 
             width:100%; display:flex; flex-direction:column; align-items:center; 
-            padding:10px; background:#120d24; border-top:2px solid var(--gold); 
-            flex-shrink:0; position: sticky; bottom: 0;
+            padding:15px; background:#120d24; border-top:3px solid var(--gold); 
+            position: relative; z-index: 300;
         }
         .dice-btn { 
-            width:75px; height:75px; background:#fff; border-radius:15px; 
-            color:#000; font-size:45px; display:flex; align-items:center; 
-            justify-content:center; box-shadow: 0 6px 0 #bdc3c7; cursor:pointer; 
-            margin-bottom: 5px; transition: 0.1s;
+            width:80px; height:80px; background:#fff; border-radius:18px; 
+            color:#000; font-size:50px; display:flex; align-items:center; 
+            justify-content:center; box-shadow: 0 8px 0 #94a3b8; cursor:pointer; 
+            transition: 0.1s;
         }
-        .dice-btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #bdc3c7; }
+        .dice-btn:active { transform: translateY(6px); box-shadow: 0 2px 0 #94a3b8; }
     </style>
 </head>
 <body>
 
-    <audio id="dice-sound" src="https://assets.mixkit.co/active_storage/sfx/2004/2004-preview.mp3"></audio>
-    <audio id="move-sound" src="https://assets.mixkit.co/active_storage/sfx/2012/2012-preview.mp3"></audio>
+    <audio id="s-dice" src="https://assets.mixkit.co/active_storage/sfx/2004/2004-preview.mp3"></audio>
+    <audio id="s-move" src="https://assets.mixkit.co/active_storage/sfx/2012/2012-preview.mp3"></audio>
 
     <div class="ui-bar">
-        <div class="p-box" id="u-blue" style="border-color:var(--b)"><div class="av">🤖</div><div style="font-size:10px;">कंप्यूटर<br>⚔️ 0</div></div>
-        <div class="p-box" id="u-yellow" style="border-color:var(--y)"><div class="av">🤖</div><div style="font-size:10px;">कंप्यूटर<br>⚔️ 0</div></div>
+        <div class="p-box" id="u-blue" style="border-color:var(--b)"><div class="av">🤖</div><div style="font-size:11px;">कंप्यूटर<br>⚔️ 0</div></div>
+        <div class="p-box" id="u-yellow" style="border-color:var(--y)"><div class="av">🤖</div><div style="font-size:11px;">कंप्यूटर<br>⚔️ 0</div></div>
     </div>
 
-    <div class="board-container">
+    <div class="board-wrap">
         <div class="board" id="board">
             <div class="base b-blue" id="blue-base"></div>
             <div class="base b-yellow" id="yellow-base"></div>
@@ -85,20 +86,19 @@
     </div>
 
     <div class="ui-bar">
-        <div class="p-box active-p" id="u-red" style="border-color:var(--r)"><div class="av">👨</div><div style="font-size:10px;">खिलाड़ी (लाल)<br>⚔️ 0</div></div>
-        <div class="p-box" id="u-green" style="border-color:var(--g)"><div class="av">🤖</div><div style="font-size:10px;">कंप्यूटर<br>⚔️ 0</div></div>
+        <div class="p-box active-p" id="u-red" style="border-color:var(--r)"><div class="av">👨</div><div style="font-size:11px;">खिलाड़ी (लाल)<br>⚔️ 0</div></div>
+        <div class="p-box" id="u-green" style="border-color:var(--g)"><div class="av">🤖</div><div style="font-size:11px;">कंप्यूटर<br>⚔️ 0</div></div>
     </div>
 
     <div class="footer">
         <div class="dice-btn" id="dice" onclick="roll()">🎲</div>
-        <div id="msg" style="color:var(--gold); font-weight:bold; font-size:0.9rem;">पासा फेंको!</div>
+        <div id="msg" style="color:var(--gold); font-weight:bold; margin-top:8px;">पासा छुएं</div>
     </div>
 
     <script>
         let diceVal = 0, turn = 'red', canMove = false;
         let positions = { red:[-1,-1,-1,-1] }; 
 
-        // लाल खिलाड़ी का पूर्ण 3D रास्ता
         const redPath = ["14-7","13-7","12-7","11-7","10-7","9-6","9-5","9-4","9-3","9-2","9-1","8-1","7-1","7-2","7-3","7-4","7-5","7-6","6-7","5-7","4-7","3-7","2-7","1-7","1-8","1-9","2-9","3-9","4-9","5-9","6-9","7-10","7-11","7-12","7-13","7-14","7-15","8-15","9-15","9-14","9-13","9-12","9-11","9-10","10-9","11-9","12-9","13-9","14-9","15-9","15-8","14-8","13-8","12-8","11-8","10-8"];
 
         function build() {
@@ -116,10 +116,10 @@
                     }
                 }
             }
-            setupTokens();
+            setup();
         }
 
-        function setupTokens() {
+        function setup() {
             const rb = document.getElementById('red-base');
             rb.innerHTML = '';
             for(let i=0; i<4; i++) {
@@ -133,13 +133,13 @@
 
         function roll() {
             if (canMove) return;
-            document.getElementById('dice-sound').play();
+            document.getElementById('s-dice').play();
             diceVal = Math.floor(Math.random()*6)+1;
             document.getElementById('dice').innerHTML = ["","⚀","⚁","⚂","⚃","⚄","⚅"][diceVal];
-            document.getElementById('msg').innerHTML = "नंबर आया: " + diceVal;
+            document.getElementById('msg').innerHTML = "आया: " + diceVal;
             
-            let anyOut = positions[turn].some(p => p !== -1);
-            if (!anyOut && diceVal !== 6) {
+            let out = positions[turn].some(p => p !== -1);
+            if (!out && diceVal !== 6) {
                 setTimeout(() => document.getElementById('msg').innerHTML = "अगली बारी...", 1000);
             } else {
                 canMove = true;
@@ -154,35 +154,35 @@
             if (positions[color][idx] === -1 && diceVal === 6) {
                 positions[color][idx] = 0;
                 document.getElementById(`c-${redPath[0]}`).appendChild(token);
-                document.getElementById('move-sound').play();
-                finishTurn();
+                document.getElementById('s-move').play();
+                finish();
             } else if (positions[color][idx] !== -1) {
                 canMove = false;
                 document.querySelectorAll('.token').forEach(el => el.classList.remove('active-token'));
-                
                 for(let i=0; i<diceVal; i++) {
                     positions[color][idx]++;
                     if (positions[color][idx] < redPath.length) {
                         const target = document.getElementById(`c-${redPath[positions[color][idx]]}`);
                         token.classList.add('jumping-3d');
-                        document.getElementById('move-sound').play();
+                        document.getElementById('s-move').play();
                         target.appendChild(token);
-                        await new Promise(r => setTimeout(r, 250));
+                        await new Promise(r => setTimeout(r, 260));
                         token.classList.remove('jumping-3d');
                     }
                 }
-                finishTurn();
+                finish();
             }
         }
 
-        function finishTurn() {
+        function finish() {
             canMove = false;
             document.querySelectorAll('.token').forEach(el => el.classList.remove('active-token'));
             if (diceVal !== 6) document.getElementById('msg').innerHTML = "अगली बारी...";
-            else document.getElementById('msg').innerHTML = "शानदार! ६ आया, फिर से पासा छुएं!";
+            else document.getElementById('msg').innerHTML = "शानदार! ६ आया!";
         }
 
         window.onload = build;
     </script>
 </body>
 </html>
+    
