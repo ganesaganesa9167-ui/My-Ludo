@@ -3,22 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Ludo Royal v19 - Movement Engine</title>
+    <title>My Ludo Royal v20 - Full Logic</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --r: #eb1c24; --g: #27ae60; --b: #2980b9; --y: #f1c40f; --gold: #d4af37; }
-        body { background: #0f172a; color: white; font-family: 'Rajdhani', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        :root { 
+            --r: #eb1c24; --g: #27ae60; --b: #2980b9; --y: #f1c40f; 
+            --gold: #d4af37; --bg: #0f172a; 
+        }
+        body { background: var(--bg); color: white; font-family: 'Rajdhani', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
 
-        .ludo-board {
+        .board {
             display: grid; grid-template-columns: repeat(15, 1fr); grid-template-rows: repeat(15, 1fr);
             width: 95vw; height: 95vw; max-width: 420px; max-height: 420px;
-            background: #fff; border: 10px solid var(--gold); border-radius: 12px; box-shadow: 0 15px 40px #000; position: relative;
+            background: #fff; border: 10px solid var(--gold); border-radius: 12px; box-shadow: 0 15px 40px #000;
         }
 
         .cell { border: 0.1px solid rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: center; position: relative; }
 
-        /* शाही घर */
-        .home { grid-column: span 6; grid-row: span 6; display: grid; grid-template-columns: repeat(2, 1fr); padding: 12%; gap: 15px; border: 1px solid #000; z-index: 5; }
+        /* चारों शाही घर */
+        .home { grid-column: span 6; grid-row: span 6; display: grid; grid-template-columns: repeat(2, 1fr); padding: 12%; gap: 12px; border: 1px solid #000; z-index: 5; }
         .red { grid-area: 1/1/7/7; background: var(--r); }
         .green { grid-area: 1/10/7/16; background: var(--g); }
         .blue { grid-area: 10/1/16/7; background: var(--b); }
@@ -26,32 +29,31 @@
 
         .slot { background: #fff; border-radius: 50%; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; border: 2px solid #333; }
         
-        /* गोटियाँ और उनकी चमक */
-        .token { 
-            width: 85%; height: 85%; border-radius: 50%; border: 2px solid #fff; 
-            box-shadow: 0 4px 8px rgba(0,0,0,0.5); z-index: 100; cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
-        }
+        /* गोटियाँ (अब चारों रंगों के लिए) */
+        .token { width: 85%; height: 85%; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.5); z-index: 100; cursor: pointer; transition: 0.2s; }
         .rt { background: radial-gradient(circle at 35% 35%, #ff4d4d, #990000); }
         .gt { background: radial-gradient(circle at 35% 35%, #4dff4d, #006600); }
+        .bt { background: radial-gradient(circle at 35% 35%, #4d4dff, #000099); }
+        .yt { background: radial-gradient(circle at 35% 35%, #ffff4d, #999900); }
         
-        .active-token { animation: glow 0.8s infinite alternate; transform: scale(1.1); }
-        @keyframes glow { from { box-shadow: 0 0 5px gold; } to { box-shadow: 0 0 20px gold; } }
+        .active-glow { animation: pulse 0.8s infinite alternate; transform: scale(1.1); box-shadow: 0 0 15px gold; }
+        @keyframes pulse { from { box-shadow: 0 0 5px gold; } to { box-shadow: 0 0 25px gold; } }
 
         .center { grid-area: 7/7/10/10; border: 2px solid #000; z-index: 10; background: conic-gradient(from 45deg, var(--y) 0deg 90deg, var(--b) 90deg 180deg, var(--r) 180deg 270deg, var(--g) 270deg 360deg); }
 
-        .p-r { background: var(--r); } .p-g { background: var(--g); }
-        .p-b { background: var(--b); } .p-y { background: var(--y); }
+        /* रास्तों के पक्के रंग (Mapping Fix) */
+        .p-red { background: var(--r) !important; } .p-green { background: var(--g) !important; }
+        .p-blue { background: var(--b) !important; } .p-yellow { background: var(--y) !important; }
         .star { background: #e2e8f0; font-weight: bold; color: #1e293b; }
 
-        #dice-box { width: 85px; height: 85px; background: #fff; border-radius: 18px; margin-top: 20px; display: flex; align-items: center; justify-content: center; font-size: 50px; color: #000; box-shadow: 0 8px 0 #94a3b8; cursor: pointer; }
+        #dice-btn { width: 85px; height: 85px; background: #fff; border-radius: 18px; margin-top: 20px; display: flex; align-items: center; justify-content: center; font-size: 50px; color: #000; box-shadow: 0 8px 0 #94a3b8; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <h1 style="color:var(--gold); margin-bottom: 10px;">👑 MY LUDO - PRO v19 👑</h1>
+    <h1 style="color:var(--gold); margin-bottom: 10px;">👑 MY LUDO - ROYAL v20 👑</h1>
     
-    <div class="ludo-board" id="board">
+    <div class="board" id="main-board">
         <div class="home red" id="red-base"></div>
         <div class="home green" id="green-base"></div>
         <div class="home blue" id="blue-base"></div>
@@ -59,16 +61,16 @@
         <div class="center"></div>
     </div>
 
-    <div id="dice-box" onclick="roll()">🎲</div>
+    <div id="dice-btn" onclick="roll()">🎲</div>
     <p id="msg" style="margin-top:10px; font-weight:bold; color:var(--gold)">पासा फेंकें</p>
 
     <script>
         let diceVal = 0;
         let canMove = false;
-        let currentPlayer = 'red';
+        let turn = 'red';
 
         function init() {
-            const b = document.getElementById('board');
+            const b = document.getElementById('main-board');
             const stars = [{r:7,c:2},{r:9,c:3},{r:2,c:9},{r:3,c:7},{r:9,c:14},{r:7,c:13},{r:14,c:7},{r:13,c:9}];
             
             for(let i=0; i<225; i++) {
@@ -79,10 +81,12 @@
                     cell.id = `cell-${r}-${c}`;
                     cell.style.gridArea = `${r}/${c}`;
 
-                    if (r===8 && c>=2 && c<=6) cell.classList.add('p-r');
-                    if (c===8 && r>=2 && r<=6) cell.classList.add('p-g');
-                    if (c===8 && r>=10 && r<=14) cell.classList.add('p-b');
-                    if (r===8 && c>=10 && c<=14) cell.classList.add('p-y');
+                    // सटीक रास्ते की कोडिंग
+                    if (r===8 && c>=2 && c<=6) cell.classList.add('p-red');
+                    if (c===8 && r>=2 && r<=6) cell.classList.add('p-green');
+                    if (c===8 && r>=10 && r<=14) cell.classList.add('p-blue');
+                    if (r===8 && c>=10 && c<=14) cell.classList.add('p-yellow');
+                    
                     if (stars.some(s=>s.r===r && s.c===c)) { cell.innerHTML="⭐"; cell.classList.add('star'); }
                     b.appendChild(cell);
                 }
@@ -91,16 +95,16 @@
         }
 
         function setupTokens() {
-            ['red', 'green', 'blue', 'yellow'].forEach(color => {
+            const colors = ['red', 'green', 'blue', 'yellow'];
+            colors.forEach(color => {
                 const base = document.getElementById(`${color}-base`);
                 base.innerHTML = '';
                 for(let i=0; i<4; i++) {
                     const slot = document.createElement('div');
                     slot.className = 'slot';
                     const token = document.createElement('div');
-                    token.className = `token ${color.charAt(0)}t`;
-                    token.id = `token-${color}-${i}`;
-                    token.onclick = (e) => handleTokenClick(color, token, e);
+                    token.className = `token ${color.charAt(0)}t`; // rt, gt, bt, yt
+                    token.onclick = () => tryMove(color, token);
                     slot.appendChild(token);
                     base.appendChild(slot);
                 }
@@ -110,35 +114,24 @@
         function roll() {
             if (canMove) return;
             diceVal = Math.floor(Math.random()*6)+1;
-            document.getElementById('dice-box').innerHTML = ["","⚀","⚁","⚂","⚃","⚄","⚅"][diceVal];
+            document.getElementById('dice-btn').innerHTML = ["","⚀","⚁","⚂","⚃","⚄","⚅"][diceVal];
             document.getElementById('msg').innerHTML = "नंबर आया: " + diceVal;
-            
             canMove = true;
-            document.querySelectorAll(`.${currentPlayer.charAt(0)}t`).forEach(t => t.classList.add('active-token'));
-            if(navigator.vibrate) navigator.vibrate(50);
+            document.querySelectorAll(`.${turn.charAt(0)}t`).forEach(t => t.classList.add('active-glow'));
         }
 
-        function handleTokenClick(color, token, e) {
-            if (!canMove || color !== currentPlayer) return;
-
-            // नियम: 6 आने पर घर से बाहर निकलना
-            if (diceVal === 6 && token.parentElement.classList.contains('slot')) {
-                const startPos = color === 'red' ? 'cell-7-2' : (color === 'green' ? 'cell-2-9' : (color === 'blue' ? 'cell-14-7' : 'cell-9-14'));
-                document.getElementById(startPos).appendChild(token);
-                endTurn();
-            } 
-            // मैदान में गोटी को आगे बढ़ाना (अभी इसे सिर्फ १ डब्बा जम्प दे रहे हैं टेस्टिंग के लिए)
-            else if (!token.parentElement.classList.contains('slot')) {
-                alert("गोटी आगे बढ़ रही है!"); 
-                endTurn();
+        function tryMove(color, el) {
+            if (!canMove || color !== turn) return;
+            
+            if (diceVal === 6 && el.parentElement.classList.contains('slot')) {
+                const starts = { red:'7-2', green:'2-9', blue:'14-7', yellow:'9-14' };
+                document.getElementById(`cell-${starts[color]}`).appendChild(el);
             }
-        }
-
-        function endTurn() {
+            
             canMove = false;
-            document.querySelectorAll('.token').forEach(t => t.classList.remove('active-token'));
-            document.getElementById('msg').innerHTML = "अगली चाल...";
-            // यहाँ हम बारी बदल सकते हैं: currentPlayer = (currentPlayer === 'red' ? 'green' : 'red');
+            document.querySelectorAll('.token').forEach(t => t.classList.remove('active-glow'));
+            turn = (turn === 'red') ? 'green' : (turn === 'green' ? 'blue' : (turn === 'blue' ? 'yellow' : 'red'));
+            document.getElementById('msg').innerHTML = turn.toUpperCase() + " की बारी";
         }
 
         window.onload = init;
